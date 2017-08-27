@@ -10,6 +10,8 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,6 +59,7 @@ public class QCServer {
     private String URL_HANDLE_FORBIDDEN;
 
     private final Server SERVER;
+    private final ServletHandler SERVLET_HANDLER;
 
     private QCServer(int port, int maxthreads, int minthreads, int timeout,
                      int capacity, int acceptors, int selectors) throws IOException{
@@ -67,8 +70,8 @@ public class QCServer {
         serverConnector.setPort(port);
         SERVER.setConnectors(new Connector[]{serverConnector});
 
-        ServletHandler servletHandler = new ServletHandler();
-        SERVER.setHandler(servletHandler);
+        SERVLET_HANDLER = new ServletHandler();
+        SERVER.setHandler(SERVLET_HANDLER);
     }
 
     public void startServer() throws Exception{
@@ -78,6 +81,10 @@ public class QCServer {
 
     public void shutdownServer() throws Exception{
         SERVER.stop();
+    }
+
+    public void addServletWithMapping(Class<? extends Servlet> servlet, String pathSpec){
+        SERVLET_HANDLER.addServletWithMapping(servlet, pathSpec);
     }
 
     public QCSessionHandler getSessionHandler(){
