@@ -20,7 +20,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if (session != null && session.isAuthenticated()) {
@@ -51,7 +51,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
 
     @Override
     public long getLastModified(HttpServletRequest req) {
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if (session != null && session.isAuthenticated()) {
@@ -71,7 +71,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if (session != null && session.isAuthenticated()) {

@@ -20,19 +20,19 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if(session != null && session.isAuthenticated()){
             doPostProtected(req, resp, session);
         }
         else{
-            QCLoginHttpServlet loginServlet = QCServer.getInstance(req).getLoginServlet();
-            if(loginServlet == null){
-                log.error("LoginServlet is null!");
+            String handleLoginURL = QCServer.getInstance().getHandleLoginURL();
+            if(handleLoginURL == null){
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "403 - Forbidden");
             }
             else{
-                loginServlet.doPost(req, resp);
+                resp.sendRedirect(handleLoginURL);
             }
         }
     }
@@ -48,7 +48,7 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
 
     @Override
     public long getLastModified(HttpServletRequest req){
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if(session != null && session.isAuthenticated()){
@@ -64,19 +64,19 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        QCServer instance = QCServer.getInstance(req);
+        QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if(session != null && session.isAuthenticated()){
             doGetProtected(req, resp, session);
         }
         else{
-            QCLoginHttpServlet loginServlet = QCServer.getInstance(req).getLoginServlet();
-            if(loginServlet == null){
-                log.error("LoginServlet is null!");
+            String handleLoginURL = QCServer.getInstance().getHandleLoginURL();
+            if(handleLoginURL == null){
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "403 - Forbidden");
             }
             else{
-                loginServlet.doPost(req, resp);
+                resp.sendRedirect(handleLoginURL);
             }
         }
     }
