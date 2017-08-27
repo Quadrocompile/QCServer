@@ -75,9 +75,9 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
         QCSession session = instance.getSessionHandler().getSession(req);
 
         if (session != null && session.isAuthenticated()) {
-            doGetPublic(req, resp, session);
-        } else {
             doGetProtected(req, resp, session);
+        } else {
+            doGetPublic(req, resp, session);
         }
     }
 
