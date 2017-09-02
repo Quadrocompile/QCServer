@@ -17,14 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class QCSessionHandler {
     protected String SESSION_COOKIE_IDENTIFIER = "j_qcSessionID";
 
-    protected long gcThreshold = 60 * 60 * 10;
+    protected long gcThreshold = 60 * 10 * 1000;
     protected long gcPerformed = -1L;
 
     protected Map<String, QCSession> sessionMap = new ConcurrentHashMap<>();
 
     protected RandomString sessionIDGenerator;
     protected QCAuthenticationService authenticationService;
-    protected long defaultTTL = 60 * 60 * 30;
+    protected long defaultTTL = 60 * 30 * 1000;
     protected long defaultMaxTTL = defaultTTL;
 
     public QCSessionHandler(QCAuthenticationService service){
