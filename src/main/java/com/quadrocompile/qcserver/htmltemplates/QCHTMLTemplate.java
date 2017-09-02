@@ -2,6 +2,7 @@ package com.quadrocompile.qcserver.htmltemplates;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -13,11 +14,11 @@ public class QCHTMLTemplate {
         this.data = data;
     }
 
-    public long writeToStream(OutputStreamWriter outputStream, Map<String, QCTemplateParam> params) throws IOException {
+    public long writeToStream(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
         long byteCount = 0;
 
         for (QCTemplateData dateEntry : data) {
-            byteCount += dateEntry.write(outputStream, params);
+            byteCount += dateEntry.write(writer, params);
         }
 
         return byteCount;
