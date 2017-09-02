@@ -4,7 +4,7 @@ import com.quadrocompile.qcserver.util.QCUtil;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -25,8 +25,8 @@ public class QCTemplateDataText implements QCTemplateData {
         this.data = data;
         this.dataBytes = bytes;
     }
-    public long write(OutputStreamWriter outputStream, Map<String, QCTemplateParam> params) throws IOException {
-        outputStream.write(data);
+    public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
+        writer.write(data);
         return dataBytes;
     }
 }

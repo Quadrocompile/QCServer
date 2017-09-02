@@ -2,6 +2,7 @@ package com.quadrocompile.qcserver.htmltemplates;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 public class QCTemplateStringParam implements QCTemplateParam {
@@ -12,7 +13,7 @@ public class QCTemplateStringParam implements QCTemplateParam {
     }
 
     @Override
-    public long write(OutputStreamWriter writer) throws IOException{
+    public long write(Writer writer) throws IOException{
         writer.write(data);
         return data.getBytes(StandardCharsets.UTF_8).length;
     }

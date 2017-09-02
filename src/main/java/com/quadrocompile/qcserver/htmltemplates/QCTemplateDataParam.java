@@ -1,7 +1,7 @@
 package com.quadrocompile.qcserver.htmltemplates;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -10,15 +10,15 @@ public class QCTemplateDataParam implements QCTemplateData {
     public QCTemplateDataParam(String paramName){
         this.paramName = paramName.toUpperCase();
     }
-    public long write(OutputStreamWriter outputStream, Map<String, QCTemplateParam> params) throws IOException {
+    public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
         QCTemplateParam param = params.get(paramName);
         if(param == null){
             String data = "${404:" + paramName + "}";
-            outputStream.write(data);
+            writer.write(data);
             return data.getBytes(StandardCharsets.UTF_8).length;
         }
         else{
-            return param.write(outputStream);
+            return param.write(writer);
         }
     }
 }
