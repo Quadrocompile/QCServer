@@ -33,7 +33,11 @@ public class QCSessionHandler {
     }
 
     public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials){
-        return createSession(request, response, credentials, defaultTTL);
+        return createSession(request, response, credentials, defaultTTL, sessionIDGenerator.nextString());
+    }
+
+    public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials, String sessionID){
+        return createSession(request, response, credentials, defaultTTL, sessionID);
     }
 
     public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials, long ttl){
@@ -41,6 +45,21 @@ public class QCSessionHandler {
 
         if(authenticationService != null && authenticationService.authenticate(credentials)){
             String sessionID = sessionIDGenerator.nextString();
+            Set<String> roles = authenticationService.getRolesForUser(credentials);
+            session = new QCSession(credentials.getUser(), sessionID, true, roles, ttl);
+            Cookie sessionCookie = new Cookie(SESSION_COOKIE_IDENTIFIER, sessionID);
+            sessionCookie.setPath("/");
+            response.addCookie(sessionCookie);
+            sessionMap.put(sessionID, session);
+        }
+
+        return session;
+    }
+
+    public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials, long ttl, String sessionID){
+        QCSession session = null;
+
+        if(authenticationService != null && authenticationService.authenticate(credentials)){
             Set<String> roles = authenticationService.getRolesForUser(credentials);
             session = new QCSession(credentials.getUser(), sessionID, true, roles, ttl);
             Cookie sessionCookie = new Cookie(SESSION_COOKIE_IDENTIFIER, sessionID);
