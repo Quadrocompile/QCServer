@@ -43,7 +43,9 @@ public class QCSessionHandler {
             String sessionID = sessionIDGenerator.nextString();
             Set<String> roles = authenticationService.getRolesForUser(credentials);
             session = new QCSession(credentials.getUser(), sessionID, true, roles, ttl);
-            response.addCookie(new Cookie(SESSION_COOKIE_IDENTIFIER, sessionID));
+            Cookie sessionCookie = new Cookie(SESSION_COOKIE_IDENTIFIER, sessionID);
+            sessionCookie.setPath("/");
+            response.addCookie(sessionCookie);
             sessionMap.put(sessionID, session);
         }
 
