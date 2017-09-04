@@ -47,7 +47,7 @@ public class QCSession {
     }
 
     public boolean isAlive(){
-        return System.currentTimeMillis() > expires;
+        return System.currentTimeMillis() < expires;
     }
 
     public boolean isExpired(){
