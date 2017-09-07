@@ -82,7 +82,7 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
     }
     protected  void doGetProtected(HttpServletRequest req, HttpServletResponse resp, QCSession session) throws IOException{
         String protocol = req.getProtocol();
-        String msg = lStrings.getString("http.method_post_not_supported");
+        String msg = lStrings.getString("http.method_get_not_supported");
         if (protocol.endsWith("1.1")) {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
         } else {

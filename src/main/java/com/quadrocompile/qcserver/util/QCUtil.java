@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class QCUtil {
+    public static final String SESSION_COOKIE_IDENTIFIER = "j_qcSessionID";
+
     private static final Logger log = Logger.getLogger(QCUtil.class);
 
     public static String getCookieValue(String cookieName, HttpServletRequest req){

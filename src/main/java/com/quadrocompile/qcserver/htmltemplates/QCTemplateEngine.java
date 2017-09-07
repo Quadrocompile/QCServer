@@ -18,6 +18,7 @@ public class QCTemplateEngine {
     private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param)\\Q:\\E(.+?)\\Q]\\E" );
 
     private static String importResourceFile(String fileName, ClassLoader classLoader){
+        /*
         try{
             URL url = classLoader.getResource(fileName);
             if(url != null){
@@ -39,6 +40,30 @@ public class QCTemplateEngine {
             }
             else{
                 throw new FileNotFoundException("URL for " + fileName + " is null!");
+            }
+        }
+        catch (Exception ex){
+            log.error("Cannot import ressource file " + fileName + "!", ex);
+        }
+
+        return null;
+        */
+
+        try{
+            InputStream is = classLoader.getResourceAsStream(fileName);
+            if(is != null){
+                StringBuilder sb = new StringBuilder();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                    sb.append("\n");
+                }
+                br.close();
+                return sb.toString();
+            }
+            else{
+                throw new FileNotFoundException("InputStream for " + fileName + " is null!");
             }
         }
         catch (Exception ex){
