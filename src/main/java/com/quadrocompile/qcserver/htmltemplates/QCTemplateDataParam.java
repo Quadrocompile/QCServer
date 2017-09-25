@@ -12,7 +12,16 @@ public class QCTemplateDataParam implements QCTemplateData {
     }
     public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
         QCTemplateParam param = params.get(paramName);
-        if(param == null){
+
+        boolean isNull = false;
+        if(param==null) isNull = true;
+        if(param instanceof QCTemplateStringParam){
+            if( ((QCTemplateStringParam)param).isNull()){
+                isNull = true;
+            }
+        }
+
+        if(isNull){
             String data = "${404:" + paramName + "}";
             writer.write(data);
             return data.getBytes(StandardCharsets.UTF_8).length;

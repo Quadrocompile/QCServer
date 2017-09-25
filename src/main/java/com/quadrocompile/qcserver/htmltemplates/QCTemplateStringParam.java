@@ -12,6 +12,8 @@ public class QCTemplateStringParam implements QCTemplateParam {
         this.data = data;
     }
 
+    public boolean isNull() { return data == null; }
+
     @Override
     public long write(Writer writer) throws IOException{
         writer.write(data);
