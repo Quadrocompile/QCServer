@@ -43,6 +43,7 @@ public class QCSessionHandler {
     public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials, long ttl){
         QCSession session = null;
 
+        System.out.println("Attempting to create session");
         if(authenticationService != null && authenticationService.authenticate(credentials)){
             String sessionID = sessionIDGenerator.nextString();
             Set<String> roles = authenticationService.getRolesForUser(credentials);
@@ -53,12 +54,14 @@ public class QCSessionHandler {
             sessionMap.put(sessionID, session);
         }
 
+        System.out.println("Returning new session [" + session + "]");
         return session;
     }
 
     public QCSession createSession(HttpServletRequest request, HttpServletResponse response, QCCredentials credentials, long ttl, String sessionID){
         QCSession session = null;
 
+        System.out.println("Attempting to create session");
         if(authenticationService != null && authenticationService.authenticate(credentials)){
             Set<String> roles = authenticationService.getRolesForUser(credentials);
             session = new QCSession(credentials.getUser(), sessionID, true, roles, ttl);
@@ -68,14 +71,17 @@ public class QCSessionHandler {
             sessionMap.put(sessionID, session);
         }
 
+        System.out.println("Returning new session [" + session + "]");
         return session;
     }
 
     public QCSession getSession(HttpServletRequest request){
         QCSession session = null;
 
+        System.out.println("Test if gc should be performed");
         if(gcPerformed + gcThreshold < System.currentTimeMillis()){
             synchronized (QCSessionHandler.class){
+                System.out.println("Perform gc");
                 if(gcPerformed + gcThreshold < System.currentTimeMillis()){
 
                     Iterator<Map.Entry<String, QCSession>> it = sessionMap.entrySet().iterator();
@@ -91,26 +97,33 @@ public class QCSessionHandler {
             }
         }
 
+        System.out.println("Get cookie session");
         String sessionID = QCUtil.getCookieValue(SESSION_COOKIE_IDENTIFIER, request);
         if(sessionID != null && !sessionID.isEmpty()){
+            System.out.println("Get Session");
             session = sessionMap.get(sessionID);
             if(session != null && session.isExpired() && !renewExpiredSession(session)){
+                System.out.println("Session is expired. Remove session");
                 sessionMap.remove(sessionID);
                 session = null;
             }
         }
 
+        System.out.println("Returning session [" + session + "]");
         return session;
     }
 
     public boolean renewExpiredSession(QCSession session){
+        System.out.println("Session renewed");
         session.renewExpiration(defaultMaxTTL);
         return true;
     }
 
     public void destroySession(HttpServletRequest request, HttpServletResponse response){
+        System.out.println("Attempting to destroy session");
         String sessionID = QCUtil.getCookieValue(SESSION_COOKIE_IDENTIFIER, request);
         if(sessionID != null && !sessionID.isEmpty()){
+            System.out.println("Session destroyed");
             sessionMap.remove(sessionID);
             response.addCookie(new Cookie(SESSION_COOKIE_IDENTIFIER, ""));
         }
