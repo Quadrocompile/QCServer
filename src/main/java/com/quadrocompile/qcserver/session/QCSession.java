@@ -47,12 +47,21 @@ public class QCSession {
     }
 
     public boolean isAlive(){
-        return System.currentTimeMillis() < expires;
+        return true;
     }
+    /*
+    public boolean isAlive(){
+       return System.currentTimeMillis() < expires;
+    }
+    */
 
+
+    public boolean isExpired(){ return false; }
+    /*
     public boolean isExpired(){
         return System.currentTimeMillis() > expiresMax;
     }
+    */
 
     public void renew(long ttl){
         expires = System.currentTimeMillis() + ttl;
