@@ -24,7 +24,7 @@ public class QCSessionHandler {
 
     protected RandomString sessionIDGenerator;
     protected QCAuthenticationService authenticationService;
-    protected long defaultTTL = 60 * 30 * 1000;
+    protected long defaultTTL = 60 * 2 * 1000;
     protected long defaultMaxTTL = defaultTTL;
 
     public QCSessionHandler(QCAuthenticationService service){
