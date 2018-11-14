@@ -48,4 +48,8 @@ public class QCTemplateStringParam implements QCTemplateParam {
         writer.write(data);
         return dataLength;
     }
+
+    public String getString(){
+        return new String(data);
+    }
 }

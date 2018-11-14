@@ -21,9 +21,43 @@ public class QCTemplateEngine {
     private static final Pattern PATTERN_FIND_INCLUDE = Pattern.compile(Pattern.quote("[@include:") + "(.+?)" + Pattern.quote("]")); // [@include:UserName]
 
     private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param|locstring)\\Q:\\E(.+?)\\Q]\\E" );
+    private static final Pattern PATTERN_EXTRACT_VARARGS = Pattern.compile( "\\Q(\\E([^(]*?)\\Q)\\E$" );
+    private static final Pattern PATTERN_EXTRACT_VARARG = Pattern.compile( "[^(),]{1,999}" );
 
     private static QCLocalizedStringFactory localizedStringFactory = null;
     private static Locale defaultLocale = Locale.ENGLISH;
+
+    /*
+    public static void main(String[] args){
+        //String expr = "[@locstring:de.hhu.hellouser]";
+        String expr = "[@locstring:de.hhu.hellouser(de.hhu.username,de.hhu.date)]";
+
+        Matcher matcher = PATTERN_FIND_INSERTS.matcher(expr);
+        while (matcher.find()) {
+            String insertType = matcher.group(1);
+            String insertValue = matcher.group(2);
+
+            if(insertType.equals("locstring")){
+
+                Matcher varArgMatcher = PATTERN_EXTRACT_VARARGS.matcher(insertValue);
+                if(varArgMatcher.find()){
+                    String identifier = insertValue.substring(0, varArgMatcher.start());
+
+                    System.out.println("Localize VARG String: '" + identifier + "'");
+                    Matcher argMatcher = PATTERN_EXTRACT_VARARG.matcher(varArgMatcher.group(0));
+                    List<String> vargList = new ArrayList<>();
+                    while(argMatcher.find()){
+                        vargList.add(argMatcher.group(0));
+                    }
+                }
+                else{
+                    System.out.println("Localize String: '" + insertValue + "'");
+                }
+
+            }
+        }
+    }
+    */
 
     private static String importResourceFile(String fileName, ClassLoader classLoader){
         try{
@@ -112,9 +146,20 @@ public class QCTemplateEngine {
                 }
             }
             else if(insertType.equals("locstring")){
-                templateData.add(new QCTemplateLocalizedStringParam(insertValue));
+                Matcher varArgMatcher = PATTERN_EXTRACT_VARARGS.matcher(insertValue);
+                if(varArgMatcher.find()){
+                    String identifier = insertValue.substring(0, varArgMatcher.start());
+                    Matcher argMatcher = PATTERN_EXTRACT_VARARG.matcher(varArgMatcher.group(0));
+                    List<String> vargList = new ArrayList<>();
+                    while(argMatcher.find()){
+                        vargList.add(argMatcher.group(0));
+                    }
+                    templateData.add(new QCTemplateLocalizedStringParam(identifier, vargList));
+                }
+                else{
+                    templateData.add(new QCTemplateLocalizedStringParam(insertValue));
+                }
             }
-
 
             // Pointer auf neuen Substring aufrücken
             lastEnd = matcher.end();
@@ -138,12 +183,11 @@ public class QCTemplateEngine {
     }
 
     public static String getLocalizedStringDefaultLocale(String identifier){
-        if(localizedStringFactory != null){
-            return localizedStringFactory.getLocalizedString(identifier, defaultLocale);
-        }
-        else{
-            return "${404:" + identifier + "(" + defaultLocale.toString() + ")}";
-        }
+        return getLocalizedString(identifier, defaultLocale);
+    }
+
+    public static String getLocalizedStringDefaultLocale(String identifier, List<String> args){
+        return getLocalizedString(identifier, defaultLocale, args);
     }
 
     public static String getLocalizedString(String identifier, Locale locale){
@@ -155,4 +199,12 @@ public class QCTemplateEngine {
         }
     }
 
+    public static String getLocalizedString(String identifier, Locale locale, List<String> args){
+        if(localizedStringFactory != null){
+            return localizedStringFactory.getLocalizedString(identifier, locale, args);
+        }
+        else{
+            return "${404:" + identifier + "(" + locale.toString() + ")}";
+        }
+    }
 }
