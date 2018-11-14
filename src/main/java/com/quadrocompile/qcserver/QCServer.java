@@ -1,7 +1,5 @@
 package com.quadrocompile.qcserver;
 
-import com.quadrocompile.qcserver.servlets.QCLoginHttpServlet;
-import com.quadrocompile.qcserver.servlets.QCProtectedHttpServlet;
 import com.quadrocompile.qcserver.session.QCSessionHandler;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
@@ -11,8 +9,6 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 

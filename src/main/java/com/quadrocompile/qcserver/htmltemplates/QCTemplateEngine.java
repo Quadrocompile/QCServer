@@ -2,9 +2,14 @@ package com.quadrocompile.qcserver.htmltemplates;
 
 import org.apache.log4j.Logger;
 
-import java.io.*;
-import java.net.URL;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,40 +20,12 @@ public class QCTemplateEngine {
     private static final Pattern PATTERN_FIND_PARAM = Pattern.compile(Pattern.quote("[@param:") + "(.+?)" + Pattern.quote("]")); // [@Param:UserName]
     private static final Pattern PATTERN_FIND_INCLUDE = Pattern.compile(Pattern.quote("[@include:") + "(.+?)" + Pattern.quote("]")); // [@include:UserName]
 
-    private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param)\\Q:\\E(.+?)\\Q]\\E" );
+    private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param|locstring)\\Q:\\E(.+?)\\Q]\\E" );
+
+    private static QCLocalizedStringFactory localizedStringFactory = null;
+    private static Locale defaultLocale = Locale.ENGLISH;
 
     private static String importResourceFile(String fileName, ClassLoader classLoader){
-        /*
-        try{
-            URL url = classLoader.getResource(fileName);
-            if(url != null){
-                File file = new File(url.getFile());
-                if(file.exists()) {
-                    StringBuilder sb = new StringBuilder();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                        sb.append("\n");
-                    }
-                    br.close();
-                    return sb.toString();
-                }
-                else{
-                    throw new FileNotFoundException("File " + fileName + " does not exist!");
-                }
-            }
-            else{
-                throw new FileNotFoundException("URL for " + fileName + " is null!");
-            }
-        }
-        catch (Exception ex){
-            log.error("Cannot import ressource file " + fileName + "!", ex);
-        }
-
-        return null;
-        */
-
         try{
             InputStream is = classLoader.getResourceAsStream(fileName);
             if(is != null){
@@ -134,6 +111,9 @@ public class QCTemplateEngine {
                     return false;
                 }
             }
+            else if(insertType.equals("locstring")){
+                templateData.add(new QCTemplateLocalizedStringParam(insertValue));
+            }
 
 
             // Pointer auf neuen Substring aufrücken
@@ -147,6 +127,32 @@ public class QCTemplateEngine {
         }
 
         return true;
+    }
+
+    public static void setLocalizedStringFactory(QCLocalizedStringFactory factory){
+        localizedStringFactory = factory;
+    }
+
+    public static void setDefaultLocale(Locale locale){
+        defaultLocale = locale;
+    }
+
+    public static String getLocalizedStringDefaultLocale(String identifier){
+        if(localizedStringFactory != null){
+            return localizedStringFactory.getLocalizedString(identifier, defaultLocale);
+        }
+        else{
+            return "${404:" + identifier + "(" + defaultLocale.toString() + ")}";
+        }
+    }
+
+    public static String getLocalizedString(String identifier, Locale locale){
+        if(localizedStringFactory != null){
+            return localizedStringFactory.getLocalizedString(identifier, locale);
+        }
+        else{
+            return "${404:" + identifier + "(" + locale.toString() + ")}";
+        }
     }
 
 }

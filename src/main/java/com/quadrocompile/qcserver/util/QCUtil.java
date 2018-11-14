@@ -3,7 +3,6 @@ package com.quadrocompile.qcserver.util;
 import com.quadrocompile.qcserver.htmltemplates.QCHTMLTemplate;
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateParam;
-import com.quadrocompile.qcserver.security.credentials.QCInitialCredentials;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
