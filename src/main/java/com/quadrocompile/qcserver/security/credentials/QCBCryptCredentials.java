@@ -1,5 +1,6 @@
 package com.quadrocompile.qcserver.security.credentials;
 
+import com.quadrocompile.qcserver.security.QCLoginCredentials;
 import org.apache.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -23,15 +24,20 @@ public class QCBCryptCredentials implements QCCredentials {
     }
 
     @Override
-    public boolean check(QCCredentials credentials) {
-        if(!(credentials instanceof QCLoginCredentials)){
-            log.error("Cannot compare " + credentials.getClass() + " to QCBCryptCredentials!");
+    public boolean check(QCLoginCredentials credentials) {
+        if(this.getUser().equals(credentials.getUser()) &&
+                BCrypt.checkpw(credentials.getPassword(), pwHash)){
+            return true;
+        }
+        else{
             return false;
         }
+    }
 
+    @Override
+    public boolean checkIgnoreCase(QCLoginCredentials credentials) {
         if(this.getUser().equalsIgnoreCase(credentials.getUser()) &&
                 BCrypt.checkpw(credentials.getPassword(), pwHash)){
-            ((QCLoginCredentials)credentials).setUserNameDisplay(this.user);
             return true;
         }
         else{

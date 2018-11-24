@@ -5,7 +5,7 @@ import java.util.Locale;
 
 public interface QCLocalizedStringFactory {
 
-    public String getLocalizedString(String identifier, Locale locale);
-    public String getLocalizedString(String identifier, Locale locale, List<String> args);
+    String getLocalizedString(String identifier, Locale locale);
+    String getLocalizedString(String identifier, Locale locale, List<String> args);
 
 }

@@ -1,1 +1,3 @@
 mvn install:install-file "-DgroupId=com.quadrocompile" "-DartifactId=qcserver" "-Dversion=0.1" "-Dpackaging=jar" "-Dfile=target/QCServer-1.0-SNAPSHOT-jar-with-dependencies.jar" "-DlocalRepositoryPath=./"
+
+CAVE: Version in pom.xml auch ändern! Dort steht ja immer 1.0-SNAPSHOT...

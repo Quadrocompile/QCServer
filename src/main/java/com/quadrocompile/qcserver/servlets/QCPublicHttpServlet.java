@@ -1,7 +1,7 @@
 package com.quadrocompile.qcserver.servlets;
 
 import com.quadrocompile.qcserver.QCServer;
-import com.quadrocompile.qcserver.session.QCSession;
+import com.quadrocompile.qcserver.sessions.QCSession;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -23,7 +23,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
         QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
-        if (session != null && session.isAuthenticated()) {
+        if (session != null) {
             doPostProtected(req, resp, session);
         } else {
             doPostPublic(req, resp, session);
@@ -54,7 +54,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
         QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
-        if (session != null && session.isAuthenticated()) {
+        if (session != null) {
             return getLastModifiedPublic(req, session);
         } else {
             return getLastModifiedProtected(req, session);
@@ -74,7 +74,7 @@ public abstract class QCPublicHttpServlet extends HttpServlet {
         QCServer instance = QCServer.getInstance();
         QCSession session = instance.getSessionHandler().getSession(req);
 
-        if (session != null && session.isAuthenticated()) {
+        if (session != null) {
             doGetProtected(req, resp, session);
         } else {
             doGetPublic(req, resp, session);

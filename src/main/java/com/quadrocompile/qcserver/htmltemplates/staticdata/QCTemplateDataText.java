@@ -1,5 +1,6 @@
-package com.quadrocompile.qcserver.htmltemplates;
+package com.quadrocompile.qcserver.htmltemplates.staticdata;
 
+import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateParam;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

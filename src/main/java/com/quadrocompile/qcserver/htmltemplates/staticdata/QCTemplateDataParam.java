@@ -1,4 +1,7 @@
-package com.quadrocompile.qcserver.htmltemplates;
+package com.quadrocompile.qcserver.htmltemplates.staticdata;
+
+import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateParam;
+import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateStringParam;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -16,15 +19,7 @@ public class QCTemplateDataParam implements QCTemplateData {
     public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
         QCTemplateParam param = params.get(paramName);
 
-        boolean isNull = false;
-        if(param==null) isNull = true;
-        if(param instanceof QCTemplateStringParam){
-            if( ((QCTemplateStringParam)param).isNull()){
-                isNull = true;
-            }
-        }
-
-        if(isNull){
+        if(param == null || param.isNull()){
             String data = "${404:" + paramName + "}";
             writer.write(data);
             return data.getBytes(StandardCharsets.UTF_8).length;
@@ -37,15 +32,7 @@ public class QCTemplateDataParam implements QCTemplateData {
     public long write(Writer writer, Map<String, QCTemplateParam> params, Locale locale) throws IOException {
         QCTemplateParam param = params.get(paramName);
 
-        boolean isNull = false;
-        if(param==null) isNull = true;
-        if(param instanceof QCTemplateStringParam){
-            if( ((QCTemplateStringParam)param).isNull()){
-                isNull = true;
-            }
-        }
-
-        if(isNull){
+        if(param == null || param.isNull()){
             String data = "${404:" + paramName + "}";
             writer.write(data);
             return data.getBytes(StandardCharsets.UTF_8).length;

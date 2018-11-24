@@ -2,7 +2,7 @@ package com.quadrocompile.qcserver.util;
 
 import com.quadrocompile.qcserver.htmltemplates.QCHTMLTemplate;
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
-import com.quadrocompile.qcserver.htmltemplates.QCTemplateParam;
+import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateParam;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -20,6 +20,15 @@ public class QCUtil {
     public static final String SESSION_COOKIE_IDENTIFIER = "j_qcSessionID";
 
     private static final Logger log = Logger.getLogger(QCUtil.class);
+
+    public static void setCookieValue(String key, String value, String path, boolean httpOnly, boolean secure, HttpServletResponse resp){
+        Cookie cookie = new Cookie(key, value);
+        cookie.setPath(path);
+        if(httpOnly) cookie.setHttpOnly(true);
+        if(secure) cookie.setSecure(true);
+
+        resp.addCookie(cookie);
+    }
 
     public static String getCookieValue(String cookieName, HttpServletRequest req){
         if(req.getCookies() != null){

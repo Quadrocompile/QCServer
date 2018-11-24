@@ -1,4 +1,4 @@
-package com.quadrocompile.qcserver.htmltemplates;
+package com.quadrocompile.qcserver.htmltemplates.paramdata;
 
 import org.apache.log4j.Logger;
 

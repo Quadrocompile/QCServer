@@ -1,5 +1,8 @@
 package com.quadrocompile.qcserver.htmltemplates;
 
+import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateParam;
+import com.quadrocompile.qcserver.htmltemplates.staticdata.QCTemplateData;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;

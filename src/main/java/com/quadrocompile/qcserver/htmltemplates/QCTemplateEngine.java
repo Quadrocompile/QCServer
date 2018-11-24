@@ -1,5 +1,9 @@
 package com.quadrocompile.qcserver.htmltemplates;
 
+import com.quadrocompile.qcserver.htmltemplates.staticdata.QCTemplateDataTextLocalized;
+import com.quadrocompile.qcserver.htmltemplates.staticdata.QCTemplateData;
+import com.quadrocompile.qcserver.htmltemplates.staticdata.QCTemplateDataParam;
+import com.quadrocompile.qcserver.htmltemplates.staticdata.QCTemplateDataText;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -17,47 +21,12 @@ import java.util.regex.Pattern;
 public class QCTemplateEngine {
     private static final Logger log = Logger.getLogger(QCTemplateEngine.class);
 
-    private static final Pattern PATTERN_FIND_PARAM = Pattern.compile(Pattern.quote("[@param:") + "(.+?)" + Pattern.quote("]")); // [@Param:UserName]
-    private static final Pattern PATTERN_FIND_INCLUDE = Pattern.compile(Pattern.quote("[@include:") + "(.+?)" + Pattern.quote("]")); // [@include:UserName]
-
     private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param|locstring)\\Q:\\E(.+?)\\Q]\\E" );
     private static final Pattern PATTERN_EXTRACT_VARARGS = Pattern.compile( "\\Q(\\E([^(]*?)\\Q)\\E$" );
     private static final Pattern PATTERN_EXTRACT_VARARG = Pattern.compile( "[^(),]{1,999}" );
 
     private static QCLocalizedStringFactory localizedStringFactory = null;
     private static Locale defaultLocale = Locale.ENGLISH;
-
-    /*
-    public static void main(String[] args){
-        //String expr = "[@locstring:de.hhu.hellouser]";
-        String expr = "[@locstring:de.hhu.hellouser(de.hhu.username,de.hhu.date)]";
-
-        Matcher matcher = PATTERN_FIND_INSERTS.matcher(expr);
-        while (matcher.find()) {
-            String insertType = matcher.group(1);
-            String insertValue = matcher.group(2);
-
-            if(insertType.equals("locstring")){
-
-                Matcher varArgMatcher = PATTERN_EXTRACT_VARARGS.matcher(insertValue);
-                if(varArgMatcher.find()){
-                    String identifier = insertValue.substring(0, varArgMatcher.start());
-
-                    System.out.println("Localize VARG String: '" + identifier + "'");
-                    Matcher argMatcher = PATTERN_EXTRACT_VARARG.matcher(varArgMatcher.group(0));
-                    List<String> vargList = new ArrayList<>();
-                    while(argMatcher.find()){
-                        vargList.add(argMatcher.group(0));
-                    }
-                }
-                else{
-                    System.out.println("Localize String: '" + insertValue + "'");
-                }
-
-            }
-        }
-    }
-    */
 
     private static String importResourceFile(String fileName, ClassLoader classLoader){
         try{
@@ -154,10 +123,10 @@ public class QCTemplateEngine {
                     while(argMatcher.find()){
                         vargList.add(argMatcher.group(0));
                     }
-                    templateData.add(new QCTemplateLocalizedStringParam(identifier, vargList));
+                    templateData.add(new QCTemplateDataTextLocalized(identifier, vargList));
                 }
                 else{
-                    templateData.add(new QCTemplateLocalizedStringParam(insertValue));
+                    templateData.add(new QCTemplateDataTextLocalized(insertValue));
                 }
             }
 

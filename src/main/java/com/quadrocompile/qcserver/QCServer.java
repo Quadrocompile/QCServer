@@ -1,6 +1,6 @@
 package com.quadrocompile.qcserver;
 
-import com.quadrocompile.qcserver.session.QCSessionHandler;
+import com.quadrocompile.qcserver.sessions.QCSessionHandler;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -89,10 +89,9 @@ public class QCServer {
     public void setSessionHandler(QCSessionHandler handler){
         sessionHandler = handler;
     }
+
     public String getHandleLoginURL() { return URL_HANDLE_LOGIN; }
     public void setHandleLoginURL(String url) { URL_HANDLE_LOGIN = url; }
     public String getHandleForbiddenURL() { return URL_HANDLE_FORBIDDEN; }
     public void setHandleForbiddenURL(String url) { URL_HANDLE_FORBIDDEN = url; }
-
-
 }

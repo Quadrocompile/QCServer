@@ -1,5 +1,6 @@
 package com.quadrocompile.qcserver.security.credentials;
 
+import com.quadrocompile.qcserver.security.QCLoginCredentials;
 import org.apache.log4j.Logger;
 
 public class QCInitialCredentials implements QCCredentials {
@@ -22,20 +23,43 @@ public class QCInitialCredentials implements QCCredentials {
     }
 
     @Override
-    public boolean check(QCCredentials credentials) {
-        if(!(credentials instanceof QCLoginCredentials)){
-            log.error("Cannot compare " + credentials.getClass() + " to QCInitialCredentials!");
-            return false;
-        }
+    public boolean check(QCLoginCredentials credentials) {
+        boolean authenticated = true;
+        if(this.getUser().equals(credentials.getUser())){
+            if(this.getPassword().length() != credentials.getPassword().length()){
+                authenticated = false;
+            }
 
-        if(this.getUser().equalsIgnoreCase(credentials.getUser()) &&
-                this.getPassword().equals(credentials.getPassword())){
-            ((QCLoginCredentials)credentials).setUserNameDisplay(this.user);
-            return true;
+            for (int i = 0; i < this.getPassword().length(); i++) {
+                if(this.getPassword().charAt(i) != credentials.getPassword().charAt(i)){
+                    authenticated = false;
+                }
+            }
         }
         else{
-            return false;
+            authenticated = false;
         }
+        return authenticated;
+    }
+
+    @Override
+    public boolean checkIgnoreCase(QCLoginCredentials credentials) {
+        boolean authenticated = true;
+        if(this.getUser().equalsIgnoreCase(credentials.getUser())){
+            if(this.getPassword().length() != credentials.getPassword().length()){
+                authenticated = false;
+            }
+
+            for (int i = 0; i < this.getPassword().length(); i++) {
+                if(this.getPassword().charAt(i) != credentials.getPassword().charAt(i)){
+                    authenticated = false;
+                }
+            }
+        }
+        else{
+            authenticated = false;
+        }
+        return authenticated;
     }
 
 }
