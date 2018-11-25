@@ -1,5 +1,6 @@
 package com.quadrocompile.qcserver;
 
+import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
 import com.quadrocompile.qcserver.sessions.QCSessionHandler;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
@@ -16,7 +17,11 @@ public class QCServer {
     private static final Logger log = Logger.getLogger(QCServer.class);
 
     public static void main(String[] args) throws Exception{
+        // For debugging
+        QCTemplateEngine.enableTemplateReloading();
+
         initializeInstanceDefault();
+        getInstance().startServer();
     }
 
     private static QCServer instance;

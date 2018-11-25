@@ -53,6 +53,11 @@ public class QCUtil {
         return requestString.toString();
     }
 
+    public static JSONObject getJSONFromRequest(HttpServletRequest req) throws IOException{
+        String request = getRequestBody(req);
+        return new JSONObject(request);
+    }
+
     public static long writeJSON(HttpServletRequest req, HttpServletResponse resp, JSONObject json) {
         long payload;
         try {
@@ -99,6 +104,7 @@ public class QCUtil {
 
     public static long streamTemplate(HttpServletRequest req, HttpServletResponse resp, String templateName, Map<String, QCTemplateParam> params){
         QCHTMLTemplate template = QCTemplateEngine.getTemplate(templateName);
+
         if(template == null){
             try {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "404 - Not found");
