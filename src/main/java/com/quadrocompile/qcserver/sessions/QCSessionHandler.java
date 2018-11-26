@@ -8,6 +8,7 @@ public interface QCSessionHandler {
     String SESSION_COOKIE_IDENTIFIER = "j_qcSessionID";
 
     QCSession createSession(HttpServletRequest request, HttpServletResponse response);
+    QCSession createSession(String userID, HttpServletRequest request, HttpServletResponse response);
     QCSession getSession(HttpServletRequest request);
     void removeSession(QCSession request);
     void destroySession(HttpServletRequest request, HttpServletResponse response);

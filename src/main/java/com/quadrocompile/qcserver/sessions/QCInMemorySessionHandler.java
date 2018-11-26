@@ -6,7 +6,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,6 +76,35 @@ public class QCInMemorySessionHandler implements QCSessionHandler {
         String newSessionID = createSessionID(remoteAddr + "_" + userAgent);
 
         QCSession session = new QCSession(newSessionID, remoteAddr, userAgent);
+
+        sessionMap.put(newSessionID, session);
+
+        QCUtil.setCookieValue(SESSION_COOKIE_IDENTIFIER, newSessionID, "/", true, false, response);
+
+        return session;
+    }
+    public QCSession createSession(String userID, HttpServletRequest request, HttpServletResponse response){
+
+        // Remove sessions from the same user
+        Set<String> sessionsToRemove = new HashSet<>();
+        for(Map.Entry<String, QCSession> sessionEntry : sessionMap.entrySet()){
+            if(sessionEntry.getValue().getValue("SESSION_USER_ID", "-1").equals(userID)){
+                sessionsToRemove.add(sessionEntry.getKey());
+            }
+            for(String sessionID : sessionsToRemove){
+                sessionMap.remove(sessionID);
+            }
+        }
+
+        String remoteAddr = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        if(userAgent == null) userAgent = "UNKNOWN_AGENT";
+
+        String newSessionID = createSessionID(remoteAddr + "_" + userAgent);
+
+        QCSession session = new QCSession(newSessionID, remoteAddr, userAgent);
+        session.setValue("SESSION_USER_ID", userID);
+
         sessionMap.put(newSessionID, session);
 
         QCUtil.setCookieValue(SESSION_COOKIE_IDENTIFIER, newSessionID, "/", true, false, response);
