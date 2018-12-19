@@ -15,6 +15,7 @@ import java.util.Map;
 public class QCTemplateDataText implements QCTemplateData {
     private static final Logger log = Logger.getLogger(QCTemplateDataText.class);
 
+    /*
     private final char[] data;
     private final long dataLength;
 
@@ -39,6 +40,27 @@ public class QCTemplateDataText implements QCTemplateData {
         this.dataLength = localDataLength;
     }
 
+
+    public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
+        writer.write(data);
+        return dataLength;
+    }
+    public long write(Writer writer, Map<String, QCTemplateParam> params, Locale locale) throws IOException {
+        writer.write(data);
+        return dataLength;
+    }
+    */
+
+    private final String data;
+    private final long dataLength;
+
+    public QCTemplateDataText(String data){
+        this(data, StandardCharsets.UTF_8);
+    }
+    public QCTemplateDataText(String data, Charset charset){
+        this.data = data;
+        this.dataLength = data.length();
+    }
 
     public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {
         writer.write(data);

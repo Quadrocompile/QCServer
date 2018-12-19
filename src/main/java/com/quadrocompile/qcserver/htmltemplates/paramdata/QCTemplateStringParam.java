@@ -14,6 +14,7 @@ public class QCTemplateStringParam implements QCTemplateParam {
 
     private static final Logger log = Logger.getLogger(QCTemplateStringParam.class);
 
+    /*
     private final char[] data;
     private final long dataLength;
 
@@ -51,5 +52,32 @@ public class QCTemplateStringParam implements QCTemplateParam {
 
     public String getString(){
         return new String(data);
+    }
+    */
+
+    private final String data;
+    private final long dataLength;
+
+    public QCTemplateStringParam(String data){
+        this(data, StandardCharsets.UTF_8);
+    }
+    public QCTemplateStringParam(String data, Charset charset){
+        this.data = data;
+        this.dataLength = data.length();
+    }
+
+    public boolean isNull() { return data == null; }
+
+    public long write(Writer writer) throws IOException {
+        writer.write(data);
+        return dataLength;
+    }
+    public long write(Writer writer, Locale locale) throws IOException {
+        writer.write(data);
+        return dataLength;
+    }
+
+    public String getString(){
+        return data;
     }
 }
