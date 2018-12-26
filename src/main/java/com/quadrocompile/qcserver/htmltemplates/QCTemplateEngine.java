@@ -62,8 +62,8 @@ public class QCTemplateEngine {
                     for(String fileName : reloadableTemplateMap.keySet()){
                         log.debug("Reload templates from file");
                         updateTemplateFromFile(fileName);
-                        lastTemplateReload = System.currentTimeMillis();
                     }
+                    lastTemplateReload = System.currentTimeMillis();
                 }
             }
             catch (Exception ignored){}
