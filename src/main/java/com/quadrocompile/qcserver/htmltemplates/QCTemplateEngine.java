@@ -27,6 +27,8 @@ public class QCTemplateEngine {
     private static QCLocalizedStringFactory localizedStringFactory = null;
     private static Locale defaultLocale = Locale.ENGLISH;
 
+    private static long lastTemplateReload = -1;
+
     private static TemplateWatchdog watchdog = null;
     private static class TemplateWatchdog implements Runnable{
         private Set<String> directorySet = new HashSet<>();
@@ -60,6 +62,7 @@ public class QCTemplateEngine {
                     for(String fileName : reloadableTemplateMap.keySet()){
                         log.debug("Reload templates from file");
                         updateTemplateFromFile(fileName);
+                        lastTemplateReload = System.currentTimeMillis();
                     }
                 }
             }
@@ -68,7 +71,14 @@ public class QCTemplateEngine {
     }
 
     public static void enableTemplateReloading(){
-        if(watchdog==null) watchdog= new TemplateWatchdog();
+        if(watchdog==null){
+            watchdog= new TemplateWatchdog();
+            lastTemplateReload = System.currentTimeMillis();
+        }
+    }
+
+    public static long getLastTemplateReload(){
+        return lastTemplateReload;
     }
 
     private static String importResourceFile(String fileName, ClassLoader classLoader){
