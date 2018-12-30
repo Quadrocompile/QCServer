@@ -4,6 +4,7 @@ import com.quadrocompile.qcserver.htmltemplates.QCHTMLTemplate;
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
 import com.quadrocompile.qcserver.htmltemplates.paramdata.QCTemplateParam;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.io.EofException;
 import org.json.JSONObject;
 
 import javax.servlet.http.Cookie;
@@ -120,10 +121,13 @@ public class QCUtil {
                 resp.setContentType("text/html; charset=utf-8");
                 OutputStreamWriter outputStream = new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8);
                 payload = template.writeToStream(outputStream, params);
-                resp.setContentLength((int)payload);
+                //resp.setContentLength((int)payload);
                 outputStream.flush();
 
                 return payload;
+            }
+            catch (EofException ignored){
+                return 0L;
             }
             catch (Exception ex){
                 log.error("Cannot stream html template: " + templateName, ex);
