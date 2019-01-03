@@ -6,7 +6,7 @@
 
     <groupId>com.quadrocompile</groupId>
     <artifactId>QCServer</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -50,6 +50,14 @@
             <!--<version>20170516</version>-->
             <version>20180813</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.owasp.encoder/encoder -->
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>

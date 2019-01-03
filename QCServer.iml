@@ -21,5 +21,6 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-security:9.4.13.v20181111" level="project" />
     <orderEntry type="library" name="Maven: org.mindrot:jbcrypt:0.4" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20180813" level="project" />
+    <orderEntry type="library" name="Maven: org.owasp.encoder:encoder:1.2.2" level="project" />
   </component>
 </module>
