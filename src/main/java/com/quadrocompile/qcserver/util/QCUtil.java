@@ -121,7 +121,7 @@ public class QCUtil {
                 resp.setContentType("text/html; charset=utf-8");
                 OutputStreamWriter outputStream = new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8);
                 payload = template.writeToStream(outputStream, params);
-                //resp.setContentLength((int)payload);
+                resp.setContentLength((int)payload);
                 outputStream.flush();
 
                 return payload;
