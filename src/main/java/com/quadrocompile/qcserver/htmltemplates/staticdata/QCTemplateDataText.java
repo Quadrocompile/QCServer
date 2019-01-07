@@ -59,7 +59,7 @@ public class QCTemplateDataText implements QCTemplateData {
     }
     public QCTemplateDataText(String data, Charset charset){
         this.data = data;
-        this.dataLength = data.length();
+        this.dataLength = data.getBytes(charset).length;
     }
 
     public long write(Writer writer, Map<String, QCTemplateParam> params) throws IOException {

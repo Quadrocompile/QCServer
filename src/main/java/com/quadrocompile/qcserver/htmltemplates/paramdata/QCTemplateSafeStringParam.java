@@ -19,7 +19,7 @@ public class QCTemplateSafeStringParam {
     public QCTemplateSafeStringParam(String data, Charset charset){
         data = Encode.forHtml(data);
         this.data = data;
-        this.dataLength = data.length();
+        this.dataLength = data.getBytes(charset).length;
     }
 
     public boolean isNull() { return data == null; }

@@ -63,7 +63,7 @@ public class QCTemplateStringParam implements QCTemplateParam {
     }
     public QCTemplateStringParam(String data, Charset charset){
         this.data = data;
-        this.dataLength = data.length();
+        this.dataLength = data.getBytes(charset).length;
     }
 
     public boolean isNull() { return data == null; }
