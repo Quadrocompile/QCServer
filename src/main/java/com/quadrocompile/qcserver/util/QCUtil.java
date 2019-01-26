@@ -31,6 +31,16 @@ public class QCUtil {
         resp.addCookie(cookie);
     }
 
+    public static void setCookieValue(String key, String value, String path, String domain, boolean httpOnly, boolean secure, HttpServletResponse resp){
+        Cookie cookie = new Cookie(key, value);
+        cookie.setPath(path);
+        cookie.setDomain(domain);
+        if(httpOnly) cookie.setHttpOnly(true);
+        if(secure) cookie.setSecure(true);
+
+        resp.addCookie(cookie);
+    }
+
     public static String getCookieValue(String cookieName, HttpServletRequest req){
         if(req.getCookies() != null){
             for(Cookie cookie : req.getCookies()){
