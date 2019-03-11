@@ -1,4 +1,4 @@
-mvn install:install-file "-DgroupId=com.quadrocompile" "-DartifactId=qcserver" "-Dversion=1.0.5" "-Dpackaging=jar" "-Dfile=target/QCServer-1.0.5-jar-with-dependencies.jar" "-DlocalRepositoryPath=./"
+mvn install:install-file "-DgroupId=com.quadrocompile" "-DartifactId=qcserver" "-Dversion=1.0.11" "-Dpackaging=jar" "-Dfile=target/QCServer-1.0.11-jar-with-dependencies.jar" "-DlocalRepositoryPath=./"
 
 CAVE: Version in pom.xml auch ändern! Dort steht ja immer 1.0-SNAPSHOT...
 
