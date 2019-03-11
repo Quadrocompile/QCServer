@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-public class QCTemplateSafeStringParam {
+public class QCTemplateSafeStringParam implements QCTemplateParam{
 
     private final String data;
     private final long dataLength;
