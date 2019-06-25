@@ -30,6 +30,15 @@ public class QCUtil {
 
         resp.addCookie(cookie);
     }
+    public static void setCookieValue(String key, String value, String path, int maxAge, boolean httpOnly, boolean secure, HttpServletResponse resp){
+        Cookie cookie = new Cookie(key, value);
+        cookie.setPath(path);
+        if(httpOnly) cookie.setHttpOnly(true);
+        if(secure) cookie.setSecure(true);
+        cookie.setMaxAge(maxAge);
+
+        resp.addCookie(cookie);
+    }
 
     public static void setCookieValue(String key, String value, String path, String domain, boolean httpOnly, boolean secure, HttpServletResponse resp){
         Cookie cookie = new Cookie(key, value);
@@ -37,6 +46,16 @@ public class QCUtil {
         cookie.setDomain(domain);
         if(httpOnly) cookie.setHttpOnly(true);
         if(secure) cookie.setSecure(true);
+
+        resp.addCookie(cookie);
+    }
+    public static void setCookieValue(String key, String value, String path, String domain, int maxAge, boolean httpOnly, boolean secure, HttpServletResponse resp){
+        Cookie cookie = new Cookie(key, value);
+        cookie.setPath(path);
+        cookie.setDomain(domain);
+        if(httpOnly) cookie.setHttpOnly(true);
+        if(secure) cookie.setSecure(true);
+        cookie.setMaxAge(maxAge);
 
         resp.addCookie(cookie);
     }
