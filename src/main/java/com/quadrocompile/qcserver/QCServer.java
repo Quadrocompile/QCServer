@@ -32,7 +32,7 @@ public class QCServer {
                 throw new Exception("QCServer is already initialized!");
             }
 
-            instance = new QCServer(9900, 20, 4, 60000, 5000, -1, -1);
+            instance = new QCServer(9900, 20, 4, 60000, -1, -1, new LinkedBlockingQueue<>(5000));
         }
         catch (Exception ex){
             log.error("Cannot initialize new QCServer instance", ex);
@@ -45,7 +45,20 @@ public class QCServer {
                 throw new Exception("QCServer is already initialized!");
             }
 
-            instance = new QCServer(port, maxthreads, minthreads, timeout, capacity, acceptors, selectors);
+            instance = new QCServer(port, maxthreads, minthreads, timeout, acceptors, selectors, new LinkedBlockingQueue<>(capacity));
+        }
+        catch (Exception ex){
+            log.error("Cannot initialize new QCServer instance", ex);
+        }
+    }
+    public static synchronized void initializeInstance(int port, int maxthreads, int minthreads, int timeout,
+                                                       int acceptors, int selectors, LinkedBlockingQueue<Runnable> queue){
+        try {
+            if(instance != null){
+                throw new Exception("QCServer is already initialized!");
+            }
+
+            instance = new QCServer(port, maxthreads, minthreads, timeout, acceptors, selectors, queue);
         }
         catch (Exception ex){
             log.error("Cannot initialize new QCServer instance", ex);
@@ -63,9 +76,9 @@ public class QCServer {
     private final ServletHandler SERVLET_HANDLER;
 
     private QCServer(int port, int maxthreads, int minthreads, int timeout,
-                     int capacity, int acceptors, int selectors) throws IOException{
+                     int acceptors, int selectors, LinkedBlockingQueue<Runnable> queue) throws IOException{
 
-        SERVER = new Server(new QueuedThreadPool(maxthreads, minthreads, timeout, new LinkedBlockingQueue<>(capacity)));
+        SERVER = new Server(new QueuedThreadPool(maxthreads, minthreads, timeout, queue));
 
         ServerConnector serverConnector = new ServerConnector(SERVER, acceptors, selectors);
         serverConnector.setPort(port);
