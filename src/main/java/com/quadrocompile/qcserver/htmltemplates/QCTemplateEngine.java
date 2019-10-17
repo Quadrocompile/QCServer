@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class QCTemplateEngine {
     private static final Logger log = Logger.getLogger(QCTemplateEngine.class);
 
-    private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "\\Q[@\\E(include|param|locstring)\\Q:\\E(.+?)\\Q]\\E" );
+    private static final Pattern PATTERN_FIND_INSERTS = Pattern.compile( "(?:\\Q/*\\E|\\Q<!--\\E)?" + "\\Q[@\\E(include|param|locstring)\\Q:\\E(.+?)\\Q]\\E" + "(?:\\Q*/\\E|\\Q-->\\E)?" );
     private static final Pattern PATTERN_EXTRACT_VARARGS = Pattern.compile( "\\Q(\\E([^(]*?)\\Q)\\E$" );
     private static final Pattern PATTERN_EXTRACT_VARARG = Pattern.compile( "[^(),]{1,999}" );
 
