@@ -102,6 +102,10 @@ public class QCUtil {
 
             return payload;
         }
+        catch (EofException ignored){
+            // Ignore Eof Exceptions. There is nothing that we can do about a reset connection anyways
+            return 0L;
+        }
         catch (Exception ex){
             log.error("Cannot stream json: " + json.toString(), ex);
 
@@ -122,9 +126,11 @@ public class QCUtil {
             json.write(outputStream);
             outputStream.flush();
         }
+        catch (EofException ignored){
+            // Ignore Eof Exceptions. There is nothing that we can do about a reset connection anyways
+        }
         catch (Exception ex){
             log.error("Cannot stream json: " + json.toString(), ex);
-
             try {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
             }
