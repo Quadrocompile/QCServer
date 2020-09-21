@@ -6,7 +6,7 @@
 
     <groupId>com.quadrocompile</groupId>
     <artifactId>QCServer</artifactId>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -27,13 +27,15 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.4.26.v20200117</version>
+            <!--<version>9.4.26.v20200117</version>-->
+            <version>9.4.31.v20200723</version>
         </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.4.26.v20200117</version>
+            <!--<version>9.4.26.v20200117</version>-->
+            <version>9.4.31.v20200723</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->

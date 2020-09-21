@@ -6,6 +6,10 @@ import java.util.Locale;
 
 public class QCTemplateEmptyParam implements QCTemplateParam {
 
+    private static final QCTemplateEmptyParam instance = new QCTemplateEmptyParam();
+
+    public static QCTemplateEmptyParam get(){ return instance; }
+
     @Override
     public long write(Writer writer) throws IOException {
         return 0;
