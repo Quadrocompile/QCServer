@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 
 public class QCUtil {
@@ -156,6 +157,38 @@ public class QCUtil {
                 resp.setContentType("text/html; charset=utf-8");
                 OutputStreamWriter outputStream = new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8);
                 payload = template.writeToStream(outputStream, params);
+                resp.setContentLength((int)payload);
+                outputStream.flush();
+
+                return payload;
+            }
+            catch (EofException ignored){
+                return 0L;
+            }
+            catch (Exception ex){
+                log.error("Cannot stream html template: " + templateName, ex);
+                return 0L;
+            }
+        }
+    }
+    public static long streamTemplate(HttpServletRequest req, HttpServletResponse resp, String templateName, Map<String, QCTemplateParam> params, Locale locale){
+        QCHTMLTemplate template = QCTemplateEngine.getTemplate(templateName);
+
+        if(template == null){
+            try {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "404 - Not found");
+            }
+            catch (IOException ignored){}
+            return 0L;
+        }
+        else{
+            // Stream HTML
+            long payload;
+            try{
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("text/html; charset=utf-8");
+                OutputStreamWriter outputStream = new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8);
+                payload = template.writeToStream(outputStream, params, locale);
                 resp.setContentLength((int)payload);
                 outputStream.flush();
 
