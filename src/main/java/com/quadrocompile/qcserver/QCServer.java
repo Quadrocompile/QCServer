@@ -2,12 +2,18 @@ package com.quadrocompile.qcserver;
 
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
 import com.quadrocompile.qcserver.sessions.QCSessionHandler;
+import com.quadrocompile.qcserver.websocket.EchoServer;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.Servlet;
 import java.io.IOException;
@@ -17,10 +23,22 @@ public class QCServer {
     private static final Logger log = Logger.getLogger(QCServer.class);
 
     public static void main(String[] args) throws Exception{
+        // Setup default console logger
+        Logger.getRootLogger().getLoggerRepository().resetConfiguration();
+        ConsoleAppender console = new ConsoleAppender(); //create appender
+        String PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%p|%c{1}:%L] %m%n";
+        console.setLayout(new PatternLayout(PATTERN));
+        console.setThreshold(Level.INFO);
+        console.activateOptions();
+        Logger.getRootLogger().addAppender(console);
+
         // For debugging
         QCTemplateEngine.enableTemplateReloading();
 
         initializeInstanceDefault();
+
+        initializeWebSockets(EchoServer.class);
+
         getInstance().startServer();
     }
 
@@ -66,6 +84,16 @@ public class QCServer {
     }
     public static QCServer getInstance(){
         return instance;
+    }
+
+    public static void initializeWebSockets(Class WebSocketClass){
+        WebSocketHandler wsHandler = new WebSocketHandler() {
+            @Override
+            public void configure(WebSocketServletFactory factory) {
+                factory.register(WebSocketClass);
+            }
+        };
+        instance.SERVER.setHandler(wsHandler);
     }
 
     private QCSessionHandler sessionHandler;
