@@ -27,7 +27,7 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-client:9.4.46.v20220331" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty.websocket:websocket-servlet:9.4.46.v20220331" level="project" />
     <orderEntry type="library" name="Maven: org.mindrot:jbcrypt:0.4" level="project" />
-    <orderEntry type="library" name="Maven: org.json:json:20210307" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20211205" level="project" />
     <orderEntry type="library" name="Maven: org.owasp.encoder:encoder:1.2.3" level="project" />
   </component>
 </module>
