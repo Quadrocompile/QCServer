@@ -11,12 +11,26 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletMapping;
+import org.eclipse.jetty.util.ArrayUtil;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class QCServer {
@@ -126,6 +140,18 @@ public class QCServer {
     }
 
     public void addServletWithMapping(Class<? extends Servlet> servlet, String pathSpec){
+        SERVLET_HANDLER.addServletWithMapping(servlet, pathSpec);
+    }
+
+    public void replaceServletWithMapping(Class<? extends Servlet> servlet, String pathSpec){
+        ServletMapping[] mappingArray = SERVLET_HANDLER.getServletMappings();
+        for (ServletMapping mapping : mappingArray) {
+            if (mapping.containsPathSpec(pathSpec)) {
+                ServletMapping[] updatedMappings = ArrayUtil.removeFromArray(mappingArray, mapping);
+                SERVLET_HANDLER.setServletMappings(updatedMappings);
+                break;
+            }
+        }
         SERVLET_HANDLER.addServletWithMapping(servlet, pathSpec);
     }
 
