@@ -77,6 +77,7 @@ public class EchoServer {
         JSONObject resp = new JSONObject();
         resp.put("source", "server");
         resp.put("content", message);
+        resp.put("userid", 123);
         send(resp.toString());
     }
 
