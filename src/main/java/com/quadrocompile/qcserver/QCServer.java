@@ -3,6 +3,7 @@ package com.quadrocompile.qcserver;
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
 import com.quadrocompile.qcserver.sessions.QCSessionHandler;
 import com.quadrocompile.qcserver.websocket.EchoServer;
+import com.quadrocompile.qcserver.websocket.examplechatimpl.ChatServer;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -37,6 +38,9 @@ public class QCServer {
     private static final Logger log = Logger.getLogger(QCServer.class);
 
     public static void main(String[] args) throws Exception{
+        ChatServer.main(args);
+        /*
+
         // Setup default console logger
         Logger.getRootLogger().getLoggerRepository().resetConfiguration();
         ConsoleAppender console = new ConsoleAppender(); //create appender
@@ -51,9 +55,10 @@ public class QCServer {
 
         initializeInstanceDefault();
 
-        initializeWebSockets(EchoServer.class);
+        initializeWebSockets(ChatServer.class);
 
         getInstance().startServer();
+         */
     }
 
     private static QCServer instance;
@@ -64,7 +69,7 @@ public class QCServer {
                 throw new Exception("QCServer is already initialized!");
             }
 
-            instance = new QCServer(9900, 20, 4, 60000, -1, -1, new LinkedBlockingQueue<>(5000));
+            instance = new QCServer(9990, 20, 4, 60000, -1, -1, new LinkedBlockingQueue<>(5000));
         }
         catch (Exception ex){
             log.error("Cannot initialize new QCServer instance", ex);
