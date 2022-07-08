@@ -38,7 +38,7 @@ public class ChatRoom {
     }
 
     public void userLeft(int userID){
-        this.users.add(userID);
+        this.users.remove(userID);
         ChatServer.sendUserLeftToGroup(userID, this.id, users);
     }
 
@@ -47,8 +47,14 @@ public class ChatRoom {
     }
 
     public void addMessage(ChatMessage message){
+        addMessage(message, true);
+    }
+    public void addMessage(ChatMessage message, boolean serialize){
         this.messages.add(message);
         ChatServer.sendMessageToGroup(message, users);
+        if(serialize){
+            ChatServer.serialize();
+        }
     }
 
 }

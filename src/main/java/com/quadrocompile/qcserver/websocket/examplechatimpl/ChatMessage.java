@@ -28,4 +28,14 @@ public class ChatMessage {
         return serialized;
     }
 
+    public static ChatMessage deserialize(JSONObject serialized){
+        String id = serialized.getString("id");
+        int author = serialized.getInt("author");
+        int room = serialized.getInt("room");
+        String message = serialized.getString("message");
+        long timestamp = serialized.getLong("timestamp");
+
+        return new ChatMessage(id, author, room, message, timestamp);
+    }
+
 }

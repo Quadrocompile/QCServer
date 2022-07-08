@@ -11,6 +11,9 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,9 +65,98 @@ public class ChatServer {
         roomMap.get(2).userJoined(4);
         roomMap.get(2).userJoined(6);
 
+        deserialize();
+
         System.out.println("Chat server initialized.");
 
         QCServer.getInstance().startServer();
+    }
+
+    public static synchronized void serialize(){
+        JSONObject serialized = new JSONObject();
+
+        JSONArray serializedRooms = new JSONArray();
+        roomMap.values().forEach( chatRoom -> {
+            JSONObject serializedRoom = new JSONObject();
+            serializedRoom.put("ID", chatRoom.getId());
+
+            JSONArray serializedMessages  = new JSONArray();
+            chatRoom.messages.forEach( chatMessage -> {
+                serializedMessages.put(chatMessage.serialize());
+            });
+            serializedRoom.put("MESSAGES", serializedMessages);
+
+            serializedRooms.put(serializedRoom);
+        });
+        serialized.put("ROOMS", serializedRooms);
+
+        JSONArray serializedUsers = new JSONArray();
+        userMap.values().forEach( chatUser -> {
+            JSONObject serializedUser = new JSONObject();
+            serializedUser.put("ID", chatUser.getId());
+            serializedUser.put("FLAGS", chatUser.serializeFlags());
+
+            serializedUsers.put(serializedUser);
+        });
+        serialized.put("USERS", serializedUsers);
+
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get("saveddata.txt"))))) {
+            serialized.write(bw);
+            bw.flush();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private static void deserialize() {
+        File f = new File("saveddata.txt");
+        if(!f.exists()) return;
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(f.toPath())))) {
+            String line;
+            while((line=br.readLine())!=null){
+                sb.append(line);
+            }
+            String in = sb.toString().trim();
+            if(in.isEmpty()){
+                in = "{}";
+            }
+            JSONObject serialized = new JSONObject(in);
+
+            if(serialized.has("ROOMS")){
+                JSONArray serializedRooms = serialized.getJSONArray("ROOMS");
+                for (int i = 0; i < serializedRooms.length(); i++) {
+                    JSONObject serializedRoom = serializedRooms.getJSONObject(i);
+                    int id = serializedRoom.getInt("ID");
+                    JSONArray messages = serializedRoom.getJSONArray("MESSAGES");
+
+                    ChatRoom room = roomMap.get(id);
+                    if(room!=null){
+                        for (int j = 0; j < messages.length(); j++) {
+                            JSONObject serializedMessage = messages.getJSONObject(j);
+                            room.addMessage(ChatMessage.deserialize(serializedMessage), false);
+                        }
+                    }
+                }
+            }
+
+            if(serialized.has("USERS")) {
+                JSONArray serializedUsers = serialized.getJSONArray("USERS");
+                for (int i = 0; i < serializedUsers.length(); i++) {
+                    JSONObject serializedUser = serializedUsers.getJSONObject(i);
+                    int id = serializedUser.getInt("ID");
+                    ChatUser user = userMap.get(id);
+                    if (user != null) {
+                        user.applyFlags(serializedUser.getJSONObject("FLAGS"));
+                    }
+                }
+            }
+
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Map<Session, Integer> registeredSessions = new HashMap<>();
@@ -91,7 +183,6 @@ public class ChatServer {
                 roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(),4, 2, "Meow 2!", System.currentTimeMillis()));
             }
 
-            /*
             int rnd2 = (int)(Math.random()*10)+1;
             if(rnd2 == 6){
                 ChatRoom room = roomMap.get(1);
@@ -107,7 +198,6 @@ public class ChatServer {
 
             int rnd3 = (int)(Math.random()*5)+1;
             if(rnd3 == 1){
-                ChatRoom room = roomMap.get(1);
                 ChatUser user = userMap.get(7);
                 if(user.status == ChatStatus.ONLINE){
                     user.setStatus(ChatStatus.OFFLINE);
@@ -116,7 +206,7 @@ public class ChatServer {
                     user.setStatus(ChatStatus.ONLINE);
                 }
             }
-            // */
+
         }, 5, 5, TimeUnit.SECONDS);
     }
 
@@ -306,19 +396,34 @@ public class ChatServer {
                             }
                         });
                         roomObject.put("users", roomUserArray);
+
+                        JSONArray serializedMessages  = new JSONArray();
+                        room.messages.forEach( chatMessage -> {
+                            JSONObject serializedMessage = chatMessage.serialize();
+                            serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
+                            serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
+                            serializedMessages.put(serializedMessage);
+                        });
+                        roomObject.put("oldmessages", serializedMessages);
+
                         myRoomArray.put(roomObject);
                     });
                     payload.put("myrooms", myRoomArray);
 
-                    JSONObject myContactsObject = new JSONObject();
+                    JSONArray myContactsArray = new JSONArray();
                     roomUsers.forEach( userID -> {
                         ChatUser contact = userMap.get(userID);
-                        if(contact!=null){
-                            // Should be != null, since only existing users are added to the roomUsers set!
-                            myContactsObject.put(String.valueOf(userID), contact.getName());
+                        if(contact!=null){  // Should be != null, since only existing users are added to the roomUsers set!
+                            JSONObject contactsEntry = new JSONObject();
+                            contactsEntry.put("userid", userID);
+                            contactsEntry.put("username", contact.getName());
+                            contactsEntry.put("onlinestatus", contact.getStatus());
+                            myContactsArray.put(contactsEntry);
                         }
                     });
-                    payload.put("mycontacts", myContactsObject);
+                    payload.put("mycontacts", myContactsArray);
+
+                    payload.put("myflags", user.serializeFlags());
 
                     resp.put("payload", payload);
                     send(resp.toString());
@@ -340,6 +445,14 @@ public class ChatServer {
                     Set<Integer> roomUsers = new HashSet<>();
 
                     JSONArray myRoomArray = new JSONArray();
+
+                    for (int i = 0; i < myRoomArray.length(); i++) {
+                        JSONObject element = myRoomArray.getJSONObject(i);
+                        element.getInt("id");
+                    }
+
+
+
                     user.getRooms().forEach( roomID -> {
                         ChatRoom room = roomMap.get(roomID);
                         JSONObject roomObject = new JSONObject();
@@ -353,20 +466,36 @@ public class ChatServer {
                                 roomUsers.add(userID);
                             }
                         });
+
                         roomObject.put("users", roomUserArray);
+
+                        JSONArray serializedMessages  = new JSONArray();
+                        room.messages.forEach( chatMessage -> {
+                            JSONObject serializedMessage = chatMessage.serialize();
+                            serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
+                            serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
+                            serializedMessages.put(serializedMessage);
+                        });
+                        roomObject.put("oldmessages", serializedMessages);
+
                         myRoomArray.put(roomObject);
                     });
                     payload.put("myrooms", myRoomArray);
 
-                    JSONObject myContactsObject = new JSONObject();
+                    JSONArray myContactsArray = new JSONArray();
                     roomUsers.forEach( userID -> {
                         ChatUser contact = userMap.get(userID);
-                        if(contact!=null){
-                            // Should be != null, since only existing users are added to the roomUsers set!
-                            myContactsObject.put(String.valueOf(userID), contact.getName());
+                        if(contact!=null){  // Should be != null, since only existing users are added to the roomUsers set!
+                            JSONObject contactsEntry = new JSONObject();
+                            contactsEntry.put("userid", userID);
+                            contactsEntry.put("username", contact.getName());
+                            contactsEntry.put("onlinestatus", contact.getStatus());
+                            myContactsArray.put(contactsEntry);
                         }
                     });
-                    payload.put("mycontacts", myContactsObject);
+                    payload.put("mycontacts", myContactsArray);
+
+                    payload.put("myflags", user.serializeFlags());
 
                     resp.put("payload", payload);
                     send(resp.toString());
@@ -414,6 +543,46 @@ public class ChatServer {
                         resp.put("payload", payload);
                         send(resp.toString());
                     }
+                }
+                break;
+            }
+            case "BLOCK_MESSAGE":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    user.blockMessage(reqPayload.getString("messageid"));
+                    serialize();
+                }
+                break;
+            }
+            case "BLOCK_USER":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    user.blockUser(reqPayload.getInt("userid"));
+                    serialize();
+                }
+                break;
+            }
+            case "FLAG_MESSAGE":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    user.flagMessage(reqPayload.getString("messageid"));
+                    serialize();
+                }
+                break;
+            }
+            case "FLAG_USER":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    user.flagUser(reqPayload.getInt("userid"));
+                    serialize();
                 }
                 break;
             }

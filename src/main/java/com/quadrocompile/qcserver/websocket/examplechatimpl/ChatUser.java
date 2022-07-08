@@ -1,6 +1,8 @@
 package com.quadrocompile.qcserver.websocket.examplechatimpl;
 
 import org.eclipse.jetty.websocket.api.Session;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +13,11 @@ public class ChatUser {
     ChatStatus status;
     Session session = null;
     Set<Integer> rooms = new HashSet<>();
+
+    Set<Integer> flaggedUsers = new HashSet<>();
+    Set<String> flaggedMessages = new HashSet<>();
+    Set<Integer> blockedUsers = new HashSet<>();
+    Set<String> blockedMessages = new HashSet<>();
 
     public ChatUser(int id, String name, ChatStatus status) {
         this.id = id;
@@ -62,5 +69,74 @@ public class ChatUser {
 
     public Set<Integer> getRooms() {
         return rooms;
+    }
+
+
+    public void flagMessage(String messageID){
+        this.flaggedMessages.add(messageID);
+    }
+    public void blockMessage(String messageID){
+        this.blockedMessages.add(messageID);
+    }
+    public void flagUser(int userID){
+        this.flaggedUsers.add(userID);
+    }
+    public void blockUser(int userID){
+        this.blockedUsers.add(userID);
+    }
+
+    public boolean isMessageFlagged(String messageID){
+        return this.flaggedMessages.contains(messageID);
+    }
+    public boolean isMessageBlocked(String messageID){
+        return this.blockedMessages.contains(messageID);
+    }
+    public boolean isUserFlagged(int userID){
+        return this.flaggedUsers.contains(userID);
+    }
+    public boolean isUserBocked(int userID){
+        return this.blockedUsers.contains(userID);
+    }
+
+    public JSONObject serializeFlags(){
+        JSONObject serialized = new JSONObject();
+
+        JSONArray flaggedMessages = new JSONArray();
+        this.flaggedMessages.forEach( id -> flaggedMessages.put(id));
+        serialized.put("FLAGGED_MESSAGES", flaggedMessages);
+
+        JSONArray blockedMessages = new JSONArray();
+        this.blockedMessages.forEach( id -> blockedMessages.put(id));
+        serialized.put("BLOCKED_MESSAGES", blockedMessages);
+
+        JSONArray flaggedUsers = new JSONArray();
+        this.flaggedUsers.forEach( id -> flaggedUsers.put(id));
+        serialized.put("FLAGGED_USERS", flaggedUsers);
+
+        JSONArray blockedUsers = new JSONArray();
+        this.blockedUsers.forEach( id -> blockedUsers.put(id));
+        serialized.put("BLOCKED_USERS", blockedUsers);
+
+        return serialized;
+    }
+
+    public void applyFlags(JSONObject serialized){
+        JSONArray flaggedMessages = serialized.getJSONArray("FLAGGED_MESSAGES");
+        for (int i = 0; i < flaggedMessages.length(); i++) {
+            this.flaggedMessages.add(flaggedMessages.getString(i));
+        }
+        JSONArray blockedMessages = serialized.getJSONArray("BLOCKED_MESSAGES");
+        for (int i = 0; i < blockedMessages.length(); i++) {
+            this.blockedMessages.add(blockedMessages.getString(i));
+        }
+
+        JSONArray flaggedUsers = serialized.getJSONArray("FLAGGED_USERS");
+        for (int i = 0; i < flaggedUsers.length(); i++) {
+            this.flaggedUsers.add(flaggedUsers.getInt(i));
+        }
+        JSONArray blockedUsers = serialized.getJSONArray("BLOCKED_USERS");
+        for (int i = 0; i < blockedUsers.length(); i++) {
+            this.blockedUsers.add(blockedUsers.getInt(i));
+        }
     }
 }
