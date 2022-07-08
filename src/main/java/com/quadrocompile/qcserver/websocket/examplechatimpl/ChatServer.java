@@ -220,6 +220,8 @@ public class ChatServer {
                 JSONObject serializedMessage = message.serialize();
                 ChatUser author = userMap.get(message.author);
                 serializedMessage.put("displayname", author.getName());
+                serializedMessage.put("flagged", user.isMessageFlagged(message.id));
+                serializedMessage.put("blocked", user.isMessageBlocked(message.id) || user.isUserBocked(message.author));
                 resp.put("payload", serializedMessage);
                 user.getSession().getRemote().sendStringByFuture(resp.toString());
             }
