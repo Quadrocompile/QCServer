@@ -57,4 +57,10 @@ public class ChatRoom {
         }
     }
 
+    public void deleteMessage(int userID, String messageID){
+        this.messages.removeIf( m -> m.author==userID && m.id.equals(messageID) );
+        ChatServer.sendMessageDeleteToGroup(messageID, users);
+        ChatServer.serialize();
+    }
+
 }

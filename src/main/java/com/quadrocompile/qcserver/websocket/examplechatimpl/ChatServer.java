@@ -180,7 +180,7 @@ public class ChatServer {
                 roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 4,1, "Meow 1!", System.currentTimeMillis()));
             }
             else if(rnd1 == 8){
-                roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(),4, 2, "Meow 2!", System.currentTimeMillis()));
+                roomMap.get(2).addMessage(new ChatMessage(UUID.randomUUID().toString(),4, 2, "Meow 2!", System.currentTimeMillis()));
             }
 
             int rnd2 = (int)(Math.random()*10)+1;
@@ -223,6 +223,22 @@ public class ChatServer {
                 serializedMessage.put("flagged", user.isMessageFlagged(message.id));
                 serializedMessage.put("blocked", user.isMessageBlocked(message.id) || user.isUserBocked(message.author));
                 resp.put("payload", serializedMessage);
+                user.getSession().getRemote().sendStringByFuture(resp.toString());
+            }
+        });
+    }
+    public static void sendMessageDeleteToGroup(String messageID, Set<Integer> users){
+        System.out.println("Sending message deleted to users " + new ArrayList<>(users).toString() + " -> '" + messageID + "'");
+        users.forEach( userID -> {
+            ChatUser user = userMap.get(userID);
+            if(user!=null && user.getSession()!=null){
+                JSONObject resp = new JSONObject();
+                resp.put("action", "MESSAGE_DELETE");
+
+                JSONObject payload = new JSONObject();
+                payload.put("userid", userID);
+                payload.put("messageid", messageID);
+                resp.put("payload", payload);
                 user.getSession().getRemote().sendStringByFuture(resp.toString());
             }
         });
@@ -402,6 +418,13 @@ public class ChatServer {
                         JSONArray serializedMessages  = new JSONArray();
                         room.messages.forEach( chatMessage -> {
                             JSONObject serializedMessage = chatMessage.serialize();
+                            ChatUser author = userMap.get(chatMessage.author);
+                            if(author!=null){
+                                serializedMessage.put("displayname", author.getName());
+                            }
+                            else{
+                                serializedMessage.put("displayname", "<Unbekannt>");
+                            }
                             serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
                             serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
                             serializedMessages.put(serializedMessage);
@@ -474,6 +497,13 @@ public class ChatServer {
                         JSONArray serializedMessages  = new JSONArray();
                         room.messages.forEach( chatMessage -> {
                             JSONObject serializedMessage = chatMessage.serialize();
+                            ChatUser author = userMap.get(chatMessage.author);
+                            if(author!=null){
+                                serializedMessage.put("displayname", author.getName());
+                            }
+                            else{
+                                serializedMessage.put("displayname", "<Unbekannt>");
+                            }
                             serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
                             serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
                             serializedMessages.put(serializedMessage);
@@ -545,6 +575,25 @@ public class ChatServer {
                         resp.put("payload", payload);
                         send(resp.toString());
                     }
+                }
+                break;
+            }
+            case "DELETE_MESSAGE":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                int roomID = reqPayload.getInt("roomid");
+                String messageID = reqPayload.getString("messageid");
+                ChatRoom room = roomMap.get(roomID);
+                if(room!=null && room.containsUser(userID)){
+                    room.deleteMessage(userID, messageID);
+                }
+                else{
+                    JSONObject resp = new JSONObject();
+                    resp.put("action", "ERROR");
+                    JSONObject payload = new JSONObject();
+                    payload.put("message", "Ungültiger Raum!");
+                    resp.put("payload", payload);
+                    send(resp.toString());
                 }
                 break;
             }
