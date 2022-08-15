@@ -1,6 +1,8 @@
 package com.quadrocompile.qcserver;
 
 import com.quadrocompile.qcserver.htmltemplates.QCTemplateEngine;
+import com.quadrocompile.qcserver.servlets.QCPublicHttpServlet;
+import com.quadrocompile.qcserver.sessions.QCSession;
 import com.quadrocompile.qcserver.sessions.QCSessionHandler;
 import com.quadrocompile.qcserver.websocket.EchoServer;
 import org.apache.log4j.ConsoleAppender;
@@ -10,13 +12,18 @@ import org.apache.log4j.PatternLayout;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.eclipse.jetty.util.ArrayUtil;
+import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -25,9 +32,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +41,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class QCServer {
     private static final Logger log = Logger.getLogger(QCServer.class);
 
+    public static class BrokenPage extends QCPublicHttpServlet {
+        @Override
+        protected void doGetPublic(HttpServletRequest req, HttpServletResponse resp, QCSession session) throws IOException {
+            String a = null;
+            System.out.println(a.length()); // Provoke NP exception
+        }
+    };
+    private static void htmlRow(Writer writer, String tag, Object value) throws IOException {
+        writer.write("<tr><th>");
+        writer.write(tag);
+        writer.write(":</th><td>");
+        if (value == null) {
+            writer.write("-");
+        } else {
+            writer.write(StringUtil.sanitizeXmlString(value.toString()));
+        }
+
+        writer.write("</td></tr>\n");
+    }
     public static void main(String[] args) throws Exception{
         // Setup default console logger
         Logger.getRootLogger().getLoggerRepository().resetConfiguration();
@@ -51,7 +75,91 @@ public class QCServer {
 
         initializeInstanceDefault();
 
-        initializeWebSockets(EchoServer.class);
+        //initializeWebSockets(EchoServer.class);
+
+
+
+        ErrorPageErrorHandler eh = new ErrorPageErrorHandler () {
+            void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException{
+            }
+            protected void handleErrorPage(HttpServletRequest request, Writer writer, int code, String message) throws IOException{
+                BufferedWriter bw = new BufferedWriter(writer);
+                bw.write("<html><head></head><body><h1>Custom Error Page!</h1>");
+
+                bw.write("<h2>HTTP ERROR ");
+                String status = Integer.toString(code);
+                bw.write(status);
+                if (message != null && !message.equals(status)) {
+                    bw.write(32);
+                    bw.write(StringUtil.sanitizeXmlString(message));
+                }
+
+                bw.write("</h2>\n");
+                bw.write("<table>\n");
+                htmlRow(bw, "URI", request.getRequestURI());
+                htmlRow(bw, "STATUS", status);
+                htmlRow(bw, "MESSAGE", message);
+                if (this.isShowServlet()) {
+                    htmlRow(bw, "SERVLET", request.getAttribute("javax.servlet.error.servlet_name"));
+                }
+
+                for(Throwable cause = (Throwable)request.getAttribute("javax.servlet.error.exception"); cause != null; cause = cause.getCause()) {
+                    htmlRow(bw, "CAUSED BY", cause);
+                }
+
+                bw.write("</table>\n");
+
+                Throwable th = (Throwable)request.getAttribute("javax.servlet.error.exception");
+                if (th != null) {
+                    bw.write("<h3>Caused by:</h3><pre>");
+                    StringWriter sw = new StringWriter();
+
+                    try {
+                        PrintWriter pw = new PrintWriter(sw);
+
+                        try {
+                            th.printStackTrace(pw);
+                            pw.flush();
+                            this.write(bw, sw.getBuffer().toString());
+                        } catch (Throwable var10) {
+                            try {
+                                pw.close();
+                            } catch (Throwable var9) {
+                                var10.addSuppressed(var9);
+                            }
+
+                            throw var10;
+                        }
+
+                        pw.close();
+                    } catch (Throwable var11) {
+                        try {
+                            sw.close();
+                        } catch (Throwable var8) {
+                            var11.addSuppressed(var8);
+                        }
+
+                        throw var11;
+                    }
+
+                    sw.close();
+                    bw.write("</pre>\n");
+                }
+
+                bw.write("</body></html>\n");
+                bw.flush();
+                System.out.println("");
+            }
+            protected void writeErrorPage(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException{
+            }
+            protected void writeErrorPageHead(HttpServletRequest request, Writer writer, int code, String message) throws IOException{}
+            protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException{}
+            protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException{}
+            protected void writeErrorPageStacks(HttpServletRequest request, Writer writer) throws IOException{}
+        };
+        getInstance().addErrorHandler(eh);
+
+        getInstance().addServletWithMapping(BrokenPage.class, "/");
 
         getInstance().startServer();
     }
@@ -137,6 +245,10 @@ public class QCServer {
 
     public void shutdownServer() throws Exception{
         SERVER.stop();
+    }
+
+    public void addErrorHandler(ErrorPageErrorHandler errorHandler){
+        SERVER.addBean(errorHandler);
     }
 
     public void addServletWithMapping(Class<? extends Servlet> servlet, String pathSpec){

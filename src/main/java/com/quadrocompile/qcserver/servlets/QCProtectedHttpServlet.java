@@ -21,7 +21,7 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         QCServer instance = QCServer.getInstance();
-        QCSession session = instance.getSessionHandler().getSession(req);
+        QCSession session = instance.getSessionHandler()!=null ? instance.getSessionHandler().getSession(req) : null;
 
         if(session != null){
             doPostProtected(req, resp, session);
@@ -49,7 +49,7 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
     @Override
     public long getLastModified(HttpServletRequest req){
         QCServer instance = QCServer.getInstance();
-        QCSession session = instance.getSessionHandler().getSession(req);
+        QCSession session = instance.getSessionHandler()!=null ? instance.getSessionHandler().getSession(req) : null;
 
         if(session != null){
             return getLastModifiedProtected(req, session);
@@ -65,7 +65,7 @@ public abstract class QCProtectedHttpServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         QCServer instance = QCServer.getInstance();
-        QCSession session = instance.getSessionHandler().getSession(req);
+        QCSession session = instance.getSessionHandler()!=null ? instance.getSessionHandler().getSession(req) : null;
 
         if(session != null){
             doGetProtected(req, resp, session);
