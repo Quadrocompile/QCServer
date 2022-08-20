@@ -4,7 +4,9 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ChatUser {
@@ -18,6 +20,8 @@ public class ChatUser {
     Set<String> flaggedMessages = new HashSet<>();
     Set<Integer> blockedUsers = new HashSet<>();
     Set<String> blockedMessages = new HashSet<>();
+
+    Map<Integer, String> readMessageMap = new HashMap<>();
 
     public ChatUser(int id, String name, ChatStatus status) {
         this.id = id;
@@ -71,6 +75,13 @@ public class ChatUser {
         return rooms;
     }
 
+    public String getLastReadMessageID(int roomID){
+        return readMessageMap.get(roomID);
+    }
+
+    public void setMessageRead(int roomID, String messageID){
+        this.readMessageMap.put(roomID, messageID);
+    }
 
     public void flagMessage(String messageID){
         this.flaggedMessages.add(messageID);
@@ -117,6 +128,9 @@ public class ChatUser {
         this.blockedUsers.forEach( id -> blockedUsers.put(id));
         serialized.put("BLOCKED_USERS", blockedUsers);
 
+        JSONObject readMessages = new JSONObject(readMessageMap);
+        serialized.put("READ_MESSAGES", readMessages);
+
         return serialized;
     }
 
@@ -137,6 +151,11 @@ public class ChatUser {
         JSONArray blockedUsers = serialized.getJSONArray("BLOCKED_USERS");
         for (int i = 0; i < blockedUsers.length(); i++) {
             this.blockedUsers.add(blockedUsers.getInt(i));
+        }
+
+        JSONObject readMessages = serialized.has("READ_MESSAGES") ? serialized.getJSONObject("READ_MESSAGES") : new JSONObject();
+        for(String key : readMessages.keySet()){
+            this.readMessageMap.put(Integer.parseInt(key), readMessages.getString(key));
         }
     }
 }

@@ -9,13 +9,15 @@ public class ChatMessage {
     int room;
     String message;
     long timestamp;
+    boolean flagDeleted;
 
-    public ChatMessage(String id, int author, int room, String message, long timestamp) {
+    public ChatMessage(String id, int author, int room, String message, long timestamp, boolean flagDeleted) {
         this.id = id;
         this.author = author;
         this.room = room;
         this.message = message;
         this.timestamp = timestamp;
+        this.flagDeleted = flagDeleted;
     }
 
     public JSONObject serialize(){
@@ -25,6 +27,7 @@ public class ChatMessage {
         serialized.put("author", author);
         serialized.put("message", message);
         serialized.put("timestamp", timestamp);
+        serialized.put("flag_deleted", flagDeleted);
         return serialized;
     }
 
@@ -34,8 +37,9 @@ public class ChatMessage {
         int room = serialized.getInt("room");
         String message = serialized.getString("message");
         long timestamp = serialized.getLong("timestamp");
+        boolean flagDeleted = serialized.has("flag_deleted") ? serialized.getBoolean("flag_deleted") : false;
 
-        return new ChatMessage(id, author, room, message, timestamp);
+        return new ChatMessage(id, author, room, message, timestamp, flagDeleted);
     }
 
 }

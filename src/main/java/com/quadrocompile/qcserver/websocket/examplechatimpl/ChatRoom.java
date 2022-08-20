@@ -37,6 +37,26 @@ public class ChatRoom {
         ChatServer.sendUserJoinedToGroup(userID, this.id, users);
     }
 
+    public boolean hasMoreMessages(int maxNum){
+        return messages.size() > maxNum;
+    }
+    public List<ChatMessage> getMessages(int maxNum){
+        List<ChatMessage> sublist = messages.subList(Math.max(messages.size()-maxNum, 0), messages.size());
+        return sublist;
+    }
+
+    public int countUnreadMessages(String messageID){
+        if(messageID!=null){
+            for (int i = messages.size(); i > 0; --i) {
+                ChatMessage m = messages.get(i-1);
+                if(m.id.equals(messageID)){
+                    return messages.size()-i;
+                }
+            }
+        }
+        return messages.size();
+    }
+
     public void userLeft(int userID){
         this.users.remove(userID);
         ChatServer.sendUserLeftToGroup(userID, this.id, users);
@@ -58,8 +78,14 @@ public class ChatRoom {
     }
 
     public void deleteMessage(int userID, String messageID){
-        this.messages.removeIf( m -> m.author==userID && m.id.equals(messageID) );
-        ChatServer.sendMessageDeleteToGroup(messageID, users);
+        for(ChatMessage message : this.messages){
+            if(message.id.equals(messageID)){
+                message.flagDeleted = true;
+                message.message = "";
+            }
+        }
+        //this.messages.removeIf( m -> m.author==userID && m.id.equals(messageID) );
+        ChatServer.sendMessageDeleteToGroup(messageID, this.id, this.users);
         ChatServer.serialize();
     }
 

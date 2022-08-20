@@ -177,22 +177,22 @@ public class ChatServer {
             //  Some interaction
             int rnd1 = (int)(Math.random()*15)+1;
             if(rnd1 == 4){
-                roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 4,1, "Meow 1!", System.currentTimeMillis()));
+                roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 4,1, "Meow 1!", System.currentTimeMillis(), false));
             }
             else if(rnd1 == 8){
-                roomMap.get(2).addMessage(new ChatMessage(UUID.randomUUID().toString(),4, 2, "Meow 2!", System.currentTimeMillis()));
+                roomMap.get(2).addMessage(new ChatMessage(UUID.randomUUID().toString(),4, 2, "Meow 2!", System.currentTimeMillis(), false));
             }
 
             int rnd2 = (int)(Math.random()*10)+1;
             if(rnd2 == 6){
                 ChatRoom room = roomMap.get(1);
                 if(room.containsUser(6)){
-                    roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 6, 1, "Ich geh dann mal :'(", System.currentTimeMillis()));
+                    roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 6, 1, "Ich geh dann mal :'(", System.currentTimeMillis(), false));
                     room.userLeft(6);
                 }
                 else{
                     room.userJoined(6);
-                    roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 6, 1, "Da bin ich wieder :)", System.currentTimeMillis()));
+                    roomMap.get(1).addMessage(new ChatMessage(UUID.randomUUID().toString(), 6, 1, "Da bin ich wieder :)", System.currentTimeMillis(), false));
                 }
             }
 
@@ -227,7 +227,7 @@ public class ChatServer {
             }
         });
     }
-    public static void sendMessageDeleteToGroup(String messageID, Set<Integer> users){
+    public static void sendMessageDeleteToGroup(String messageID, int roomID, Set<Integer> users){
         System.out.println("Sending message deleted to users " + new ArrayList<>(users).toString() + " -> '" + messageID + "'");
         users.forEach( userID -> {
             ChatUser user = userMap.get(userID);
@@ -238,6 +238,7 @@ public class ChatServer {
                 JSONObject payload = new JSONObject();
                 payload.put("userid", userID);
                 payload.put("messageid", messageID);
+                payload.put("roomid", roomID);
                 resp.put("payload", payload);
                 user.getSession().getRemote().sendStringByFuture(resp.toString());
             }
@@ -284,6 +285,7 @@ public class ChatServer {
                 ChatUser newUser = userMap.get(userID);
                 payload.put("displayname", newUser.getName());
                 payload.put("roomid", roomID);
+                payload.put("onlinestatus", newUser.getStatus());
                 resp.put("payload", payload);
                 user.getSession().getRemote().sendStringByFuture(resp.toString());
             }
@@ -385,8 +387,10 @@ public class ChatServer {
             case "AUTHENTICATE":{
                 JSONObject reqPayload = msg.getJSONObject("payload");
                 String authCode = reqPayload.getString("authcode");
-                if("905CDC11-65BA-4B9F-9EE6-EF15CCCFD488".equals(authCode)){
-                    ChatUser user = userMap.get(1);
+                if("905CDC11-65BA-4B9F-9EE6-EF15CCCFD488".equals(authCode) || "D6D0FAC1-E14D-480C-9F0E-14EDFD6F36C1".equals(authCode)){
+                    ChatUser user = userMap.get(
+                            "905CDC11-65BA-4B9F-9EE6-EF15CCCFD488".equals(authCode) ? 1 : 2
+                    );
                     user.setSession(session);
                     user.setStatus(ChatStatus.ONLINE);
                     registeredSessions.put(session, user.getId());
@@ -398,6 +402,8 @@ public class ChatServer {
                     payload.put("myname", user.getName() );
 
                     Set<Integer> roomUsers = new HashSet<>();
+
+                    final int NUM_MAX_MESSAGES = 50;
 
                     JSONArray myRoomArray = new JSONArray();
                     user.getRooms().forEach( roomID -> {
@@ -416,7 +422,7 @@ public class ChatServer {
                         roomObject.put("users", roomUserArray);
 
                         JSONArray serializedMessages  = new JSONArray();
-                        room.messages.forEach( chatMessage -> {
+                        room.getMessages(NUM_MAX_MESSAGES).forEach( chatMessage -> {
                             JSONObject serializedMessage = chatMessage.serialize();
                             ChatUser author = userMap.get(chatMessage.author);
                             if(author!=null){
@@ -430,84 +436,11 @@ public class ChatServer {
                             serializedMessages.put(serializedMessage);
                         });
                         roomObject.put("oldmessages", serializedMessages);
+                        roomObject.put("hasmoremessages", room.hasMoreMessages(NUM_MAX_MESSAGES));
 
-                        myRoomArray.put(roomObject);
-                    });
-                    payload.put("myrooms", myRoomArray);
+                        int unreadMessages = room.countUnreadMessages(user.getLastReadMessageID(room.getId()));
+                        roomObject.put("unreadmessages", unreadMessages);
 
-                    JSONArray myContactsArray = new JSONArray();
-                    roomUsers.forEach( userID -> {
-                        ChatUser contact = userMap.get(userID);
-                        if(contact!=null){  // Should be != null, since only existing users are added to the roomUsers set!
-                            JSONObject contactsEntry = new JSONObject();
-                            contactsEntry.put("userid", userID);
-                            contactsEntry.put("username", contact.getName());
-                            contactsEntry.put("onlinestatus", contact.getStatus());
-                            myContactsArray.put(contactsEntry);
-                        }
-                    });
-                    payload.put("mycontacts", myContactsArray);
-
-                    payload.put("myflags", user.serializeFlags());
-
-                    resp.put("payload", payload);
-                    send(resp.toString());
-
-                    System.out.println("User " + user.id + " authenticated.");
-                }
-                else if("D6D0FAC1-E14D-480C-9F0E-14EDFD6F36C1".equals(authCode)){
-                    ChatUser user = userMap.get(2);
-                    user.setSession(session);
-                    user.setStatus(ChatStatus.ONLINE);
-                    registeredSessions.put(session, user.getId());
-
-                    JSONObject resp = new JSONObject();
-                    resp.put("action", "SERVER_INFO");
-                    JSONObject payload = new JSONObject();
-                    payload.put("myid", user.getId() );
-                    payload.put("myname", user.getName() );
-
-                    Set<Integer> roomUsers = new HashSet<>();
-
-                    JSONArray myRoomArray = new JSONArray();
-
-                    for (int i = 0; i < myRoomArray.length(); i++) {
-                        JSONObject element = myRoomArray.getJSONObject(i);
-                        element.getInt("id");
-                    }
-
-
-
-                    user.getRooms().forEach( roomID -> {
-                        ChatRoom room = roomMap.get(roomID);
-                        JSONObject roomObject = new JSONObject();
-                        roomObject.put("id", room.getId());
-                        roomObject.put("name", room.getName());
-                        JSONArray roomUserArray = new JSONArray();
-                        room.users.forEach( userID -> {
-                            ChatUser contact = userMap.get(userID);
-                            if(contact!=null){
-                                roomUserArray.put(userID);
-                                roomUsers.add(userID);
-                            }
-                        });
-
-                        roomObject.put("users", roomUserArray);
-
-                        JSONArray serializedMessages  = new JSONArray();
-                        room.messages.forEach( chatMessage -> {
-                            JSONObject serializedMessage = chatMessage.serialize();
-                            ChatUser author = userMap.get(chatMessage.author);
-                            if(author!=null){
-                                serializedMessage.put("displayname", author.getName());
-                            }
-                            else{
-                                serializedMessage.put("displayname", "<Unbekannt>");
-                            }
-                            serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
-                            serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
-                            serializedMessages.put(serializedMessage);
-                        });
                         roomObject.put("oldmessages", serializedMessages);
 
                         myRoomArray.put(roomObject);
@@ -564,7 +497,7 @@ public class ChatServer {
                     String message = reqPayload.getString("message");
                     ChatRoom room = roomMap.get(roomID);
                     if(room!=null && room.containsUser(userID)){
-                        ChatMessage chatMessage = new ChatMessage(UUID.randomUUID().toString(), userID, roomID, message, System.currentTimeMillis());
+                        ChatMessage chatMessage = new ChatMessage(UUID.randomUUID().toString(), userID, roomID, message, System.currentTimeMillis(), false);
                         room.addMessage(chatMessage);
                     }
                     else{
@@ -633,6 +566,16 @@ public class ChatServer {
                 ChatUser user = userMap.get(userID);
                 if(user!=null){
                     user.flagUser(reqPayload.getInt("userid"));
+                    serialize();
+                }
+                break;
+            }
+            case "UPDATE_MESSAGES_READ":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    user.setMessageRead(reqPayload.getInt("roomid"), reqPayload.getString("messageid"));
                     serialize();
                 }
                 break;
