@@ -580,6 +580,58 @@ public class ChatServer {
                 }
                 break;
             }
+            case "QUERY_OLDER_MESSAGES":{
+                JSONObject reqPayload = msg.getJSONObject("payload");
+                int userID = registeredSessions.get(this.session);
+                ChatUser user = userMap.get(userID);
+                if(user!=null){
+                    int roomID = reqPayload.getInt("roomid");
+                    String messageID = reqPayload.getString("messageid");
+                    int numMessages = reqPayload.getInt("nummessages");
+
+                    ChatRoom room = roomMap.get(roomID);
+                    if(room!=null && room.containsUser(userID)){
+                        ChatRoom.OlderMessageCollection fetchResult = room.fetchOlderMessages(messageID, numMessages);
+
+                        JSONObject resp = new JSONObject();
+                        resp.put("action", "OLDER_MESSAGES_QUERY_RESPONSE");
+                        JSONObject payload = new JSONObject();
+                        payload.put("roomid", roomID);
+                        payload.put("containsmessages", fetchResult.containsMessages());
+                        payload.put("hasoldermessages", fetchResult.hasOlderMessages());
+
+                        JSONArray serializedMessages  = new JSONArray();
+                        fetchResult.getFetchedMessages().forEach( chatMessage -> {
+                            JSONObject serializedMessage = chatMessage.serialize();
+                            ChatUser author = userMap.get(chatMessage.author);
+                            if(author!=null){
+                                serializedMessage.put("displayname", author.getName());
+                            }
+                            else{
+                                serializedMessage.put("displayname", "<Unbekannt>");
+                            }
+                            serializedMessage.put("flagged", user.isMessageFlagged(chatMessage.id));
+                            serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
+                            serializedMessages.put(serializedMessage);
+                        });
+                        payload.put("messages", fetchResult.hasOlderMessages());
+                        resp.put("payload", payload);
+                        send(resp.toString());
+                    }
+                    else{
+                        JSONObject resp = new JSONObject();
+                        resp.put("action", "ERROR");
+                        JSONObject payload = new JSONObject();
+                        payload.put("message", "Ungültiger Raum!");
+                        resp.put("payload", payload);
+                        send(resp.toString());
+                    }
+
+                    user.setMessageRead(reqPayload.getInt("roomid"), reqPayload.getString("messageid"));
+                    serialize();
+                }
+                break;
+            }
             default: {
                 System.out.println("Unknown action: " + serialized);
 
