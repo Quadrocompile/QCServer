@@ -614,7 +614,7 @@ public class ChatServer {
                             serializedMessage.put("blocked", user.isMessageBlocked(chatMessage.id) || user.isUserBocked(chatMessage.author));
                             serializedMessages.put(serializedMessage);
                         });
-                        payload.put("messages", fetchResult.hasOlderMessages());
+                        payload.put("messages", serializedMessages);
                         resp.put("payload", payload);
                         send(resp.toString());
                     }
