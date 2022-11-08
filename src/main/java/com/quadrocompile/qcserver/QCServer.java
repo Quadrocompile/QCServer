@@ -215,7 +215,7 @@ public class QCServer {
                 factory.register(WebSocketClass);
             }
         };
-        instance.SERVER.setHandler(wsHandler);
+        instance.SERVER.insertHandler(wsHandler);
     }
 
     private QCSessionHandler sessionHandler;

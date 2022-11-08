@@ -6,7 +6,7 @@
 
     <groupId>com.quadrocompile</groupId>
     <artifactId>QCServer</artifactId>
-    <version>1.2.5.1</version>
+    <version>1.2.5.2</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
