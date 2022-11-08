@@ -69,7 +69,7 @@ public class QCServer {
                 throw new Exception("QCServer is already initialized!");
             }
 
-            instance = new QCServer(9990, 20, 4, 60000, -1, -1, new LinkedBlockingQueue<>(5000));
+            instance = new QCServer(9900, 20, 4, 60000, -1, -1, new LinkedBlockingQueue<>(5000));
         }
         catch (Exception ex){
             log.error("Cannot initialize new QCServer instance", ex);
@@ -112,7 +112,8 @@ public class QCServer {
                 factory.register(WebSocketClass);
             }
         };
-        instance.SERVER.setHandler(wsHandler);
+        //instance.SERVER.setHandler(wsHandler);
+        instance.SERVER.insertHandler(wsHandler);
     }
 
     private QCSessionHandler sessionHandler;

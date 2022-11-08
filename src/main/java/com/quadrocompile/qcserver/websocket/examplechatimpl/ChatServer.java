@@ -42,6 +42,9 @@ public class ChatServer {
         QCServer.initializeInstanceDefault();
         QCServer.initializeWebSockets(ChatServer.class);
 
+        QCServer.getInstance().addServletWithMapping(HelloWorldServlet.class, "/");
+
+
         userMap.put(1, new ChatUser(1, "Melanie", ChatStatus.OFFLINE));
         userMap.put(2, new ChatUser(2, "Phil", ChatStatus.OFFLINE));
         userMap.put(3, new ChatUser(3, "Markus", ChatStatus.OFFLINE));
