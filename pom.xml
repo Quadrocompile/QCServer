@@ -6,7 +6,7 @@
 
     <groupId>com.quadrocompile</groupId>
     <artifactId>QCServer</artifactId>
-    <version>1.2.5.2</version>
+    <version>1.2.6</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -29,7 +29,7 @@
             <artifactId>jetty-server</artifactId>
             <!--<version>9.4.26.v20200117</version>-->
             <!--<version>9.4.41.v20210516</version>-->
-            <version>9.4.46.v20220331</version>
+            <!--<version>9.4.46.v20220331</version>-->
             <!--<version>9.4.48.v20220622</version> THIS THROWS
             java.lang.UnsupportedOperationException: Use .getMatched(String) instead
                 at org.eclipse.jetty.http.pathmap.PathMappings.getMatch(PathMappings.java:259)
@@ -49,6 +49,7 @@
                 at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1034)
                 at java.base/java.lang.Thread.run(Thread.java:832)
             -->
+            <version>9.4.51.v20230217</version>
         </dependency>
 
         <dependency>
@@ -56,7 +57,8 @@
             <artifactId>jetty-servlet</artifactId>
             <!--<version>9.4.26.v20200117</version>-->
             <!--<version>9.4.41.v20210516</version>-->
-            <version>9.4.46.v20220331</version>
+            <!--<version>9.4.46.v20220331</version>-->
+            <version>9.4.51.v20230217</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
@@ -64,7 +66,8 @@
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-server</artifactId>
             <!--<version>9.4.46.v20220331</version>-->
-            <version>9.4.48.v20220622</version>
+            <!--<version>9.4.48.v20220622</version>-->
+            <version>9.4.51.v20230217</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
@@ -79,7 +82,8 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <!--<version>20210307</version>-->
-            <version>20211205</version>
+            <!--<version>20211205</version>-->
+            <version>20230618</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.owasp.encoder/encoder -->
