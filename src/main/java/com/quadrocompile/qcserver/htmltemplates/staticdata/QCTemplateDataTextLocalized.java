@@ -73,7 +73,7 @@ public class QCTemplateDataTextLocalized implements QCTemplateData {
                     paramList.add("${404:" + paramName + "}");
                 }
             }
-            String data = QCTemplateEngine.getLocalizedStringDefaultLocale(paramName, paramList);
+            String data = QCTemplateEngine.getLocalizedString(paramName, locale, paramList);
             writer.write(data);
             return data.getBytes(StandardCharsets.UTF_8).length;
         }
