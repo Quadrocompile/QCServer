@@ -84,6 +84,9 @@ public class QCInMemorySessionHandler implements QCSessionHandler {
         return session;
     }
     public QCSession createSession(String userID, HttpServletRequest request, HttpServletResponse response){
+        return createSession(userID, 0, request, response);
+    }
+    public QCSession createSession(String userID, int maxAge, HttpServletRequest request, HttpServletResponse response){
 
         // Remove sessions from the same user
         Set<String> sessionsToRemove = new HashSet<>();
@@ -107,7 +110,13 @@ public class QCInMemorySessionHandler implements QCSessionHandler {
 
         sessionMap.put(newSessionID, session);
 
-        QCUtil.setCookieValue(SESSION_COOKIE_IDENTIFIER, newSessionID, "/", true, false, response);
+        if(maxAge > 0){
+            QCUtil.setCookieValue(SESSION_COOKIE_IDENTIFIER, newSessionID, "/", maxAge, true,false, response);
+        }
+        else{
+            QCUtil.setCookieValue(SESSION_COOKIE_IDENTIFIER, newSessionID, "/", true, false, response);
+        }
+
 
         return session;
     }

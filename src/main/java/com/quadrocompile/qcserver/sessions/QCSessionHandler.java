@@ -9,6 +9,7 @@ public interface QCSessionHandler {
 
     QCSession createSession(HttpServletRequest request, HttpServletResponse response);
     QCSession createSession(String userID, HttpServletRequest request, HttpServletResponse response);
+    QCSession createSession(String userID, int maxAge, HttpServletRequest request, HttpServletResponse response);
     QCSession getSession(HttpServletRequest request);
     void removeSession(QCSession request);
     void destroySession(HttpServletRequest request, HttpServletResponse response);
