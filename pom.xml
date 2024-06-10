@@ -6,7 +6,7 @@
 
     <groupId>com.quadrocompile</groupId>
     <artifactId>QCServer</artifactId>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -28,13 +28,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.10</version>
+            <version>2.0.13</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-reload4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
-            <version>2.0.10</version>
+            <version>2.0.13</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240205</version>
+            <version>20240303</version>
         </dependency>
 
 
